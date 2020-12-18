@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags-->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Colorlib Templates">
+    <meta name="author" content="Colorlib">
+    <meta name="keywords" content="Colorlib Templates">
+
+    <!-- Title Page-->
+    <title>Siebel Log Request Page</title>
+
+    <!-- Icons font CSS-->
+    <link href="../static/vendor/mdi-font/css/material-design-iconic-font.min.css" rel="stylesheet" media="all">
+    <link href="../static/vendor/font-awesome-4.7/css/font-awesome.min.css" rel="stylesheet" media="all">
+    <!-- Font special for pages-->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,100i,300,300i,400,400i,500,500i,700,700i,900,900i" rel="stylesheet">
+
+    <!-- Vendor CSS-->
+    <link href="../static/vendor/select2/select2.min.css" rel="stylesheet" media="all">
+    <link href="../static/vendor/datepicker/daterangepicker.css" rel="stylesheet" media="all">
+
+    <!-- Main CSS-->
+    <link href="../static/css/main.css" rel="stylesheet" media="all">
+	<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+</head>
+
+<body>
+    <div class="page-wrapper bg-blue p-t-100 p-b-100 font-robo">
+        <div class="wrapper wrapper--w680">
+            <div class="card card-1">
+                <div class="card-heading"></div>
+                <div class="card-body">
+                    <h2 class="title">Request Info</h2>
+                    <form method="POST" id="myForm">
+                        <div class="input-group">
+                            <input class="input--style-1" type="text" placeholder="Keyword to search for" name="keyword">
+                        </div>
+                        <div class="row row-space">
+                            <div class="col-2">
+                                <div class="input-group">
+                                    <div class="rs-select2 js-select-simple select">
+                                        <select id="machine_no" name="machine_no">
+                                            <option value="0" disabled="disabled" selected="selected">Select Machine</option>
+                                            <option value="1">pro 1</option>
+                                            <option value="2">pro 2</option>
+                                            <option value="3">pro 3</option>
+                                            <option value="4">pro 4</option>
+                                            <option value="5">pro 5</option>
+                                            <option value="6">pro 6</option>
+                                        </select>
+                                        <div class="select-dropdown"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-2">
+                                <div class="input-group">
+                                    <div class="rs-select2 js-select-simple select">
+                                        <select id="server_name" name="server_name">
+                                            <option value="0" disabled="disabled" selected="selected">Select Server</option>
+                                            <option value="1">SBL_ADM01</option>
+                                            <option value="1">Server 1.1</option>
+                                            <option value="1">Server 1.2</option>
+                                            <option value="2">Server 2</option>
+                                            <option value="2">Server 2.1</option>
+                                            <option value="2">Server 2.2</option>
+                                            <option value="3">Server 3</option>
+                                            <option value="3">Server 3.1</option>
+                                            <option value="3">Server 3.2</option>
+                                            <option value="4">Server 4</option>
+                                            <option value="4">Server 4.1</option>
+                                            <option value="4">Server 4.2</option>
+                                            <option value="5">Server 5</option>
+                                            <option value="5">Server 5.1</option>
+                                            <option value="5">Server 5.2</option>
+                                            <option value="6">Server 6</option>
+                                            <option value="6">Server 6.1</option>
+                                            <option value="6">Server 6.2</option>
+                                        </select>
+                                        <div class="select-dropdown"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-2">
+                                <div class="input-group">
+                                    <div class="rs-select2 js-select-simple select">
+                                        <select name="name_component">
+                                            <option disabled="disabled" selected="selected">Select Component</option>
+                                            <option>SCCObjMgrOpen_enu</option>
+                                            <option>SCCObjMgr_trk</option>
+                                            <option>WfProcMgrOMClose</option>
+                                            <option>WfProcBatchMgr</option>
+                                            <option>WfProcMgr</option>
+                                        </select>
+                                        <div class="select-dropdown"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                            <div class="p-t-20">
+                                <button class="btn btn--radius btn--green" type="submit" id="btn1">Open Logs</button>
+                            </div>
+                            <div class="p-t-20">
+                                <button class="btn btn--radius btn--green" type="submit" id="btn2">Close Logs</button>
+                            </div>
+                            <div class="p-t-20">
+                                <button class="btn btn--radius btn--green" type="submit" id="btn3">Request Log</button>
+                            </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Jquery JS-->
+    <script src="../static/vendor/jquery/jquery.min.js"></script>
+    <!-- Vendor JS-->
+    <script src="../static/vendor/select2/select2.min.js"></script>
+    <script src="../static/vendor/datepicker/moment.min.js"></script>
+    <script src="../static/vendor/datepicker/daterangepicker.js"></script>
+
+    <!-- Main JS-->
+    <script src="../static/js/global.js"></script>
+
+</body><!-- This templates was made by Colorlib (https://colorlib.com) -->
+
+</html>
+<!-- end document-->
