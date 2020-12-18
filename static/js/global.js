@@ -101,11 +101,23 @@ window.addEventListener( "load", function () {
     
 		//var action;
 		btn1.onclick = function(e) {
-			action = "OPEN_LOG";
+            action = "OPEN_LOG";
+            $("#btn2").attr("disabled", false);
+            $("#btn1").attr("disabled", true);
+            // btn2.disabled = false;
+            // btn1.disabled = true;
+            console.log(btn1.disabled);
+            console.log(btn2.disabled);
 		}
 
 		btn2.onclick = function(e) {
 			action = "CLOSE_LOG";
+            $("#btn2").attr("disabled", true);
+            $("#btn1").attr("disabled", false);
+            // btn1.disabled = false;
+            // btn2.disabled = true;
+            console.log(btn1.disabled);
+            console.log(btn2.disabled);
 		}
 
 		btn3.onclick = function(e) {
