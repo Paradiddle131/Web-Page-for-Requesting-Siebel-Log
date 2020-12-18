@@ -26,6 +26,11 @@ def setup():
 def hello():
     return render_template("index.html")
 	
+		
+@app.route("/records")
+def records():
+    return render_template("records.html")
+	
 	
 def run_batch(args):
 	system(fr'C:\Windows\System32\cmd.exe /c {path_batch} "{args["serv_ip"]}" "{args["servpw"]}" "{args["path_log"]}" "{args["path_unix_log"]}" "{args["winscp_hostkey"]}" "{args["Action"]}" "{args["keyword"]}" "{args["machine_no"]}" "{args["server_name"]}" "{args["time_log"]}" "{args["component"]}"')
@@ -69,4 +74,4 @@ def request_log():
 
 if __name__ == "__main__":
 	setup()
-	app.run(host=getenv("host_address"), port=5003, debug=False)
+	app.run(host="localhost", port=5003, debug=False)

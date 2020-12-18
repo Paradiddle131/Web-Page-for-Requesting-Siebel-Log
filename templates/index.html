@@ -23,6 +23,7 @@
     <link href="../static/vendor/datepicker/daterangepicker.css" rel="stylesheet" media="all">
 
     <!-- Main CSS-->
+    <link href="../static/css/records.css" rel="stylesheet" media="all">
     <link href="../static/css/main.css" rel="stylesheet" media="all">
 	<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
 </head>
@@ -109,8 +110,66 @@
                                 <button class="btn btn--radius btn--green" type="submit" id="btn3">Request Log</button>
                             </div>
                     </form>
+                    <div class="p-t-20">
+                        <button type="button" class="btn btn--radius btn--green" id="btnToggleTable">Toggle Table <span>-</span></button>
+                    </div>
+                </div>
+            </div><br>
+
+            <div class="card card-1">
+                <div class="record_wrapper">
+                    <div class="record_table">
+                        <div class="record_row header blue">
+                        <div class="record_cell">
+                            Username
+                        </div>
+                        <div class="record_cell">
+                            Email
+                        </div>
+                        <div class="record_cell">
+                            Machine
+                        </div>
+                        <div class="record_cell">
+                            Active
+                        </div>
+                        </div>
+                        
+                        <div class="record_row">
+                        <div class="record_cell" data-title="Username">
+                            Employee 1
+                        </div>
+                        <div class="record_cell" data-title="Email">
+                            turningtables@hotmail.com
+                        </div>
+                        <div class="record_cell" data-title="Password">
+                            Pro 1
+                        </div>
+                        <div class="record_cell" data-title="Active">
+                            Yes
+                        </div>
+                        </div>
+                        
+                        <div class="record_row">
+                        <div class="record_cell" data-title="Username">
+                            Employee 2
+                        </div>
+                        <div class="record_cell" data-title="Email">
+                            anothermail@gmail.com
+                        </div>
+                        <div class="record_cell" data-title="Password">
+                            Pro 2
+                        </div>
+                        <div class="record_cell" data-title="Active">
+                            No
+                        </div>
+                        </div>
+                        
+                    </div>
+                    </div>
+                    <input type="submit" id="submit-button" name="submit" value="Update"/>
                 </div>
             </div>
+
         </div>
     </div>
 
@@ -123,6 +182,7 @@
 
     <!-- Main JS-->
     <script src="../static/js/global.js"></script>
+    <script src="../static/js/records.js"></script>
 
 </body><!-- This templates was made by Colorlib (https://colorlib.com) -->
 
