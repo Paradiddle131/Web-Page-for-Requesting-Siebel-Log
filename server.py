@@ -10,6 +10,8 @@ app = Flask(__name__)
 args = None
 path_project = getcwd()
 path_batch = path.join(path_project, "plink_.bat")
+response = {}
+open_machines = []
 
 def setup():
 	global args
@@ -54,14 +56,21 @@ def request_log():
 		run_batch(args)
 		if req_data.get('Action') == "REQUEST_LOG":
 			return send_file(glob(f"{getenv('path_file_to_upload')}\{time_log}*.log")[-1], attachment_filename="your_log.log")
-		else:
-			response_message = "Log level increased." if req_data.get('Action') == "OPEN_LOG" else "Log level decreased."
-			response_status = 201 if req_data.get('Action') == "OPEN_LOG" else 202
-			return app.response_class(
-				response=dumps(response_message),
-				status=response_status,
-				mimetype='application/json'
-			)
+		elif req_data.get('Action') == "OPEN_LOG":
+			open_machines.append(req_data.get("machine_no"))
+			response_status = 201
+			response.update({"response_message": "Log level increased.",
+							"open_machines": open_machines})
+		elif req_data.get('Action') == "CLOSE_LOG":
+			open_machines.remove(req_data.get("machine_no"))
+			response_status = 202
+			response.update({"response_message": "Log level decreased.",
+							"open_machines": open_machines})
+		return app.response_class(
+			response=response,
+			status=response_status,
+			mimetype='application/json'
+		)
 	except Exception as e:
 		print("ERROR OCCURRED:\n\n")
 		print(e)
