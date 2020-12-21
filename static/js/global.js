@@ -92,6 +92,13 @@ function str2bytes(str) {
     return bytes;
 }
 
+function blobToFile(theBlob, fileName){
+    //A Blob() is almost a File() - it's just missing the two properties below which we will add
+    theBlob.lastModifiedDate = new Date();
+    theBlob.name = fileName;
+    return theBlob;
+}
+
 
 window.addEventListener("load", function () {
     // Access the form element...
@@ -101,15 +108,13 @@ window.addEventListener("load", function () {
 
     //var action;
     btn1.onclick = function (e) {
+        console.log("open onclick");
         action = "OPEN_LOG";
-        $("#btn2").attr("disabled", false);
-        $("#btn1").attr("disabled", true);
     }
 
     btn2.onclick = function (e) {
+        console.log("close onclick");
         action = "CLOSE_LOG";
-        $("#btn2").attr("disabled", true);
-        $("#btn1").attr("disabled", false);
     }
 
     btn3.onclick = function (e) {
@@ -134,10 +139,27 @@ window.addEventListener("load", function () {
 
         //XHR.onload = function(e) {
         XHR.addEventListener("load", function (event) {
-            console.log(this.response.response_message);
-            console.log(this.response.open_machines);
-            if (this.status == 200 && !this.response.match("Log level increased.") && !this.response.match("Log level decreased.")) {
-                const blob = new Blob([str2bytes(this.response)], { type: 'image/pdf' });
+            console.log(this.response);
+            console.log(typeof this.response);
+            // var jsonObj = JSON.parse(this.response);
+            // console.log(jsonObj.response_message);
+            // console.log(jsonObj.open_machines);
+            console.log(action);
+            if (action = "OPEN_LOG"){
+                console.log("open");
+                // $("#btn1").attr("disabled", true);
+                // $("#btn2").attr("disabled", false);
+            } else if (action = "CLOSE_LOG"){
+                console.log("close");
+                // $("#btn1").attr("disabled", false);
+                // $("#btn2").attr("disabled", true);
+            }
+            // if (this.status == 200 && !this.response.match("Log level increased.") && !this.response.match("Log level decreased.")) {
+            if (this.status == 200) {
+                const blob = new Blob([this.response], { type: 'application/octet-stream' });
+                var myFile = blobToFile(blob, "myLog.zip");
+                console.log(blob);
+                console.log(myFile);
                 //const file = new File([blob], 'myLog.zip', {type: 'application/zip'});
                 //this.handleUpload(file); // Sends POST request with received file
                 //window.URL.revokeObjectURL(window.URL.createObjectURL(blob))
@@ -150,9 +172,10 @@ window.addEventListener("load", function () {
                 a.style = "display: none";
                 document.body.appendChild(a);
                 //Create a DOMString representing the blob and point the link element towards it
-                let url = window.URL.createObjectURL(blob);
+                // let url = window.URL.createObjectURL(blob);
+                let url = window.URL.createObjectURL(myFile);
                 a.href = url;
-                a.download = 'myLog.log';
+                a.download = 'myLog.zip';
                 //programatically click the link to trigger the download
                 a.click();
                 //release the reference to the file by revoking the Object URL
@@ -176,15 +199,17 @@ window.addEventListener("load", function () {
 
         // Set up our request
         //   XHR.open( "POST", "http://localhost:5003/request_log" );
-        XHR.open("POST", "http://172.24.84.34:5003/request_log");
+        XHR.open("POST", "http://172.24.84.34:5004/request_log");
 
 
         // The data sent is what the user provided in the form
         XHR.setRequestHeader("Access-Control-Allow-Headers", "Accept");
-        XHR.setRequestHeader("Access-Control-Allow-Origin", "http://172.24.84.34:5003/request_log");
-        //XHR.responseType='blob';
+        XHR.setRequestHeader("Access-Control-Allow-Origin", "http://172.24.84.34:5004/request_log");
+        XHR.responseType='blob';
         //XHR.setRequestHeader("Content-Type", "multipart/form-data")
         FD.append("Action", action);
+
+
         FD.set("server_name", server_name);
         XHR.send(FD);
     }

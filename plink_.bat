@@ -32,7 +32,6 @@ IF %action%=="CLOSE_LOG" (
 IF %action%=="REQUEST_LOG" (
 	"C:\Program Files (x86)\WinSCP\WinSCP.exe" /command "option batch on" "option confirm off" "open -hostkey="%winscp_hostkey%" siebel:%servpw%@%serv_ip%" "get %path_unix_log%/%file_name% E:\LogCopyAutomation\%time_log%_%file_name%" "/log=%path_log%\LogCopy_%time_log%_%file_name%" "exit"
 	echo %time_log:~1,-1%_%file_name% copied successfully to E:/ drive.
-	exit
 	timeout /t 3
 	E:
 	cd E:\LogCopyAutomation\
