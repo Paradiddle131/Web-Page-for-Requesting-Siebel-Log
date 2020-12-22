@@ -1,60 +1,6 @@
-// var cors = require('cors')
-// app.use(cors())
-
-var server_name = "";
-
 (function ($) {
-    'use strict';
-    /*==================================================================
-        [ Daterangepicker ]*/
-    try {
-        $('.js-datepicker').daterangepicker({
-            "singleDatePicker": true,
-            "showDropdowns": true,
-            "autoUpdateInput": false,
-            locale: {
-                format: 'DD/MM/YYYY'
-            },
-        });
-
-        var myCalendar = $('.js-datepicker');
-        var isClick = 0;
-
-        $(window).on('click', function () {
-            isClick = 0;
-        });
-
-        $(myCalendar).on('apply.daterangepicker', function (ev, picker) {
-            isClick = 0;
-            $(this).val(picker.startDate.format('DD/MM/YYYY'));
-
-        });
-
-        $('.js-btn-calendar').on('click', function (e) {
-            e.stopPropagation();
-
-            if (isClick === 1) isClick = 0;
-            else if (isClick === 0) isClick = 1;
-
-            if (isClick === 1) {
-                myCalendar.focus();
-            }
-        });
-
-        $(myCalendar).on('click', function (e) {
-            e.stopPropagation();
-            isClick = 1;
-        });
-
-        $('.daterangepicker').on('click', function (e) {
-            e.stopPropagation();
-        });
-
-
-    } catch (er) { console.log(er); }
     /*[ Select 2 Config ]
         ===========================================================*/
-
     try {
         var selectSimple = $('.js-select-simple');
 
@@ -69,20 +15,13 @@ var server_name = "";
 
     } catch (err) {
         console.log(err);
-    }
+    }})(jQuery);
 
 
-})(jQuery);
-
-
-
-
-// Since there can be multiple elements with the class "popup-trigger", it returns an array. Putting the [0] will call the first button with the class "popup-trigger".
 var btn1 = document.getElementById("btn1");
 var btn2 = document.getElementById("btn2");
 var btn3 = document.getElementById("btn3");
-// If you wanted to check clicks on ALL buttons with the class, remove the [0] at the end.
-
+var server_name = "";
 
 function str2bytes(str) {
     var bytes = new Uint8Array(str.length);
@@ -93,7 +32,6 @@ function str2bytes(str) {
 }
 
 function blobToFile(theBlob, fileName){
-    //A Blob() is almost a File() - it's just missing the two properties below which we will add
     theBlob.lastModifiedDate = new Date();
     theBlob.name = fileName;
     return theBlob;
@@ -103,7 +41,7 @@ function blobToString(b) {
     var u, x;
     u = URL.createObjectURL(b);
     x = new XMLHttpRequest();
-    x.open('GET', u, false); // although sync, you're not fetching over internet
+    x.open('GET', u, false);
     x.send();
     URL.revokeObjectURL(u);
     return x.responseText;
@@ -111,12 +49,8 @@ function blobToString(b) {
 
 
 window.addEventListener("load", function () {
-    // Access the form element...
     const form = document.getElementById("myForm");
-    //var action;
     let action;
-
-    //var action;
     btn1.onclick = function (e) {
         console.log("open onclick");
         action = "OPEN_LOG";
@@ -131,7 +65,6 @@ window.addEventListener("load", function () {
         action = "REQUEST_LOG";
     }
 
-    // ...and take over its submit event.
     form.addEventListener("submit", function (event) {
         event.preventDefault();
 
@@ -139,18 +72,8 @@ window.addEventListener("load", function () {
     });
     function sendData() {
         const XHR = new XMLHttpRequest();
-        // Bind the FormData object and the form element
         const FD = new FormData(form);
-        // Define what happens on successful data submission
-        /*XHR.addEventListener( "load", function(event) {
-          alert( event.target.responseText );
-        } );*/
-
-        //XHR.onload = function(e) {
         XHR.addEventListener("load", function (event) {
-            // var jsonObj = JSON.parse(this.response)s;
-            // console.log(jsonObj.response_message);
-            // console.log(jsonObj.open_machines);
             console.log(action);
             if (action = "OPEN_LOG"){
                 console.log("open");
@@ -161,31 +84,17 @@ window.addEventListener("load", function () {
                 // $("#btn1").attr("disabled", false);
                 // $("#btn2").attr("disabled", true);
             }
-            // if (this.status == 200 && !this.response.match("Log level increased.") && !this.response.match("Log level decreased.")) {
-            // if (this.status == 200 && !responseJSON["response_message"].match("Log level increased.") && !responseJSON["response_message"].match("Log level decreased.")) {
             if (this.response.type === "application/x-zip-compressed"){
                 var keyword = document.getElementsByClassName("input--style-1")[0].value;
                 const blob = new Blob([this.response], { type: 'application/x-zip-compressed' });
                 var myFile = blobToFile(blob, keyword+".zip");
-                //const file = new File([blob], 'myLog.zip', {type: 'application/zip'});
-                //this.handleUpload(file); // Sends POST request with received file
-                //window.URL.revokeObjectURL(window.URL.createObjectURL(blob))
-
-                // Create a new Blob object using the response data of the onload object
-                //var blob = new Blob([str2bytes(XHR.response)], {type: 'application/rar'});
-                //var fileName = 'myLog.rar';
-                //Create a link element, hide it, direct it towards the blob, and then 'click' it programatically
                 let a = document.createElement("a");
                 a.style = "display: none";
                 document.body.appendChild(a);
-                //Create a DOMString representing the blob and point the link element towards it
-                // let url = window.URL.createObjectURL(blob);
                 let url = window.URL.createObjectURL(myFile);
                 a.href = url;
                 a.download = keyword+'.zip';
-                //programatically click the link to trigger the download
                 a.click();
-                //release the reference to the file by revoking the Object URL
                 window.URL.revokeObjectURL(url);
                 a.remove();
             } else if (this.response.type === "application/json"){ 
@@ -201,22 +110,10 @@ window.addEventListener("load", function () {
                     alert("Something bad happened.");
             }
         }});
-
-        // Define what happens in case of error
-        //   XHR.addEventListener( "error", function( event ) {
-        //     alert( 'Oops! Something went wrong!' );
-        //   } );
-
-        // Set up our request
-        //   XHR.open( "POST", "http://localhost:5003/request_log" );
         XHR.open("POST", "http://172.24.84.34:5004/request_log");
-
-
-        // The data sent is what the user provided in the form
         XHR.setRequestHeader("Access-Control-Allow-Headers", "Accept");
         XHR.setRequestHeader("Access-Control-Allow-Origin", "http://172.24.84.34:5004/request_log");
         XHR.responseType='blob';
-        //XHR.setRequestHeader("Content-Type", "multipart/form-data")
         FD.append("Action", action);
         FD.set("server_name", server_name);
         XHR.send(FD);
@@ -238,10 +135,3 @@ $machine_no.on('change', function () {
 $server_name.on('change', function () {
     server_name = $(this).find('option:selected').text();
 });
-
-
-
-
-
-
-
