@@ -99,6 +99,16 @@ function blobToFile(theBlob, fileName){
     return theBlob;
 }
 
+function blobToString(b) {
+    var u, x;
+    u = URL.createObjectURL(b);
+    x = new XMLHttpRequest();
+    x.open('GET', u, false); // although sync, you're not fetching over internet
+    x.send();
+    URL.revokeObjectURL(u);
+    return x.responseText;
+}
+
 
 window.addEventListener("load", function () {
     // Access the form element...
@@ -136,12 +146,9 @@ window.addEventListener("load", function () {
           alert( event.target.responseText );
         } );*/
 
-
         //XHR.onload = function(e) {
         XHR.addEventListener("load", function (event) {
-            console.log(this.response);
-            console.log(typeof this.response);
-            // var jsonObj = JSON.parse(this.response);
+            // var jsonObj = JSON.parse(this.response)s;
             // console.log(jsonObj.response_message);
             // console.log(jsonObj.open_machines);
             console.log(action);
@@ -155,11 +162,11 @@ window.addEventListener("load", function () {
                 // $("#btn2").attr("disabled", true);
             }
             // if (this.status == 200 && !this.response.match("Log level increased.") && !this.response.match("Log level decreased.")) {
-            if (this.status == 200) {
-                const blob = new Blob([this.response], { type: 'application/octet-stream' });
-                var myFile = blobToFile(blob, "myLog.zip");
-                console.log(blob);
-                console.log(myFile);
+            // if (this.status == 200 && !responseJSON["response_message"].match("Log level increased.") && !responseJSON["response_message"].match("Log level decreased.")) {
+            if (this.response.type === "application/x-zip-compressed"){
+                var keyword = document.getElementsByClassName("input--style-1")[0].value;
+                const blob = new Blob([this.response], { type: 'application/x-zip-compressed' });
+                var myFile = blobToFile(blob, keyword+".zip");
                 //const file = new File([blob], 'myLog.zip', {type: 'application/zip'});
                 //this.handleUpload(file); // Sends POST request with received file
                 //window.URL.revokeObjectURL(window.URL.createObjectURL(blob))
@@ -175,22 +182,25 @@ window.addEventListener("load", function () {
                 // let url = window.URL.createObjectURL(blob);
                 let url = window.URL.createObjectURL(myFile);
                 a.href = url;
-                a.download = 'myLog.zip';
+                a.download = keyword+'.zip';
                 //programatically click the link to trigger the download
                 a.click();
                 //release the reference to the file by revoking the Object URL
                 window.URL.revokeObjectURL(url);
                 a.remove();
-            } else if (this.response.match("Log level increased.")) {
-                alert("Log level increased.");
-            } else if (this.response.match("Log level decreased.")) {
-                alert("Log level decreased.");
-            } else if (this.response.match("Success!")) {
-                console.log("Success.");
-            } else {
-                alert("Something bad happened.");
+            } else if (this.response.type === "application/json"){ 
+                var response = blobToString(this.response);
+                var responseJSON = JSON.parse(response);
+                if (responseJSON["response_message"].match("Log level increased.")) {
+                    alert("Log level increased.");
+                } else if (responseJSON["response_message"].match("Log level decreased.")) {
+                    alert("Log level decreased.");
+                } else if (responseJSON["response_message"].match("Success!")) {
+                    console.log("Success.");
+                } else {
+                    alert("Something bad happened.");
             }
-        });
+        }});
 
         // Define what happens in case of error
         //   XHR.addEventListener( "error", function( event ) {
@@ -208,8 +218,6 @@ window.addEventListener("load", function () {
         XHR.responseType='blob';
         //XHR.setRequestHeader("Content-Type", "multipart/form-data")
         FD.append("Action", action);
-
-
         FD.set("server_name", server_name);
         XHR.send(FD);
     }
