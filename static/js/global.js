@@ -15,7 +15,14 @@
 
     } catch (err) {
         console.log(err);
-    }})(jQuery);
+    }
+    /*LOAD JSON DATA*/
+    $.getJSON("static/data/active_servers.json", function (data) { 
+        $.each(data, function (key, value) { 
+            addOpenMachine(value.Email, value.Machine, value.Date_activated, value.Status, false);
+        }); 
+    }); 
+})(jQuery);
 
 
 var btn1 = document.getElementById("btn1");
@@ -23,13 +30,6 @@ var btn2 = document.getElementById("btn2");
 var btn3 = document.getElementById("btn3");
 var server_name = "";
 
-function str2bytes(str) {
-    var bytes = new Uint8Array(str.length);
-    for (var i = 0; i < str.length; i++) {
-        bytes[i] = str.charCodeAt(i);
-    }
-    return bytes;
-}
 
 function blobToFile(theBlob, fileName){
     theBlob.lastModifiedDate = new Date();
@@ -45,6 +45,44 @@ function blobToString(b) {
     x.send();
     URL.revokeObjectURL(u);
     return x.responseText;
+}
+
+function addOpenMachine(email, machine, date, status, doPush) {
+    $(".record_table").append("<div class=\"record_row\">" + 
+        "<div class=\"record_cell\" data-title=\"Email\">" + 
+            email + 
+        "</div>" + 
+        "<div class=\"record_cell\" data-title=\"Machine\">" + 
+            machine + 
+        "</div>" + 
+        "<div class=\"record_cell\" data-title=\"Date Activated\">" + 
+            date + 
+        "</div>" + 
+        "<div class=\"record_cell\" data-title=\"Status\">" + 
+            status + 
+        "</div>" + 
+        "</div>");
+    if (doPush) {
+        $.getJSON("static/data/active_servers.json", function (data) {
+            data.push({
+                "Email": email,
+                "Machine": machine,
+                "Date_activated": date,
+                "Status": status
+            });
+        }); 
+        // XHR SEND POST REQUEST
+        var http = new XMLHttpRequest();
+        var data = new FormData();
+        data.append('Email', email);
+        data.append('Machine', machine);
+        data.append('Date_activated', date);
+        data.append('Status', status);
+        http.open("POST", "http://172.24.84.34:5004/request_log");
+        http.setRequestHeader("Access-Control-Allow-Headers", "Accept");
+        http.setRequestHeader("Access-Control-Allow-Origin", "http://172.24.84.34:5004/request_log");
+        http.send(data);
+    }
 }
 
 
@@ -100,12 +138,14 @@ window.addEventListener("load", function () {
             } else if (this.response.type === "application/json"){ 
                 var response = blobToString(this.response);
                 var responseJSON = JSON.parse(response);
+                console.log(responseJSON);
                 if (responseJSON["response_message"].match("Log level increased.")) {
+                    addOpenMachine("NewAddedEmail@vodafone.com", $("#machine_no option:selected").text(), new Date(), "Active", true);
                     alert("Log level increased.");
                 } else if (responseJSON["response_message"].match("Log level decreased.")) {
                     alert("Log level decreased.");
                 } else if (responseJSON["response_message"].match("Success!")) {
-                    console.log("Success.");
+                    console.log("Success!");
                 } else {
                     alert("Something bad happened.");
             }
@@ -121,17 +161,8 @@ window.addEventListener("load", function () {
 });
 
 
-//Reference: https://jsfiddle.net/fwv18zo1/
-var $machine_no = $('#machine_no'),
-    $server_name = $('#server_name'),
-    $options = $server_name.find('option');
-
-$machine_no.on('change', function () {
-    $server_name.html($options.filter('[value="' + this.value + '"]'));
-    server_name = $server_name.find('option:selected').text();
-}).trigger('change');
-
-
-$server_name.on('change', function () {
-    server_name = $(this).find('option:selected').text();
-});
+$('#btnToggleTable').click(function(){
+    $(this).find('span').text(function(_, value){return value=='-'?'+':'-'});
+    $(this).nextUntil('div.row').slideToggle(100, function(){
+    });
+ });

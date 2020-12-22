@@ -1,5 +1,5 @@
 from flask import Flask, request, send_file, render_template
-from json import dumps, load
+from json import dump, dumps, load
 import subprocess
 from dotenv import load_dotenv
 from os import getenv, system, getcwd, path
@@ -52,8 +52,22 @@ def request_log():
 	try:
 		req_data = request.form
 		if req_data.get('Action') is None:
-			print("Form data is missing.")
-			exit()
+			with open("static/data/active_servers.json") as d:
+				data = load(d)
+			with open("static/data/active_servers.json", "w+") as f:
+				current_data = {
+					"Email": req_data.get("Email"),
+					"Machine": req_data.get("Machine"),
+					"Date_activated": req_data.get("Date_activated"),
+					"Status": req_data.get("Status")
+				}
+				data.append(current_data)
+				dump(data, f)
+			return app.response_class(
+			    response=dumps("Success!"),
+			    status=200,
+			    mimetype='application/json'
+			)	
 		isTest = True if 'isTest' in req_data else False
 		if not isTest:
 			args.update({"serv_ip": get_request_attribute(req_data, 'IP'),
@@ -66,23 +80,17 @@ def request_log():
 					"machine_no": req_data.get('machine_no'),
 					"time_log": time_log,
 					"component": get_request_attribute(req_data, 'Component_name')})
-		'''print(req_data.get('machine_no'))
-		print(type(req_data.get('machine_no')))
-		print(servers[0])
-		print(servers[int(req_data.get('machine_no'))-1])
-		print(servers[int(req_data.get('machine_no'))]['Alias'])'''
-		
 		run_batch(args)
 		if req_data.get('Action') == "REQUEST_LOG":
 			print("SENDING FILE...")
 			return send_file(glob(f"{getenv('path_file_to_upload')}\{time_log}*.zip")[-1], attachment_filename="your_log.zip")
 		elif req_data.get('Action') == "OPEN_LOG":
-			open_machines.append(req_data.get("machine_no"))
+			open_machines.append(servers[int(req_data.get("machine_no"))-1]['hostname'])
 			response_status = 201
 			response.update({"response_message": "Log level increased.",
 							"open_machines": open_machines})
 		elif req_data.get('Action') == "CLOSE_LOG":
-			open_machines.remove(req_data.get("machine_no"))
+			open_machines.remove(servers[int(req_data.get("machine_no"))-1]['hostname'])
 			response_status = 202
 			response.update({"response_message": "Log level decreased.",
 							"open_machines": open_machines})
