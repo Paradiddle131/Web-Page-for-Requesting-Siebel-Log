@@ -13,8 +13,10 @@
     <title>Siebel Log Request Page</title>
 
     <!-- Icons font CSS-->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.1/css/all.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.1/css/v4-shims.css">
     <link href="../static/vendor/mdi-font/css/material-design-iconic-font.min.css" rel="stylesheet" media="all">
-    <link href="../static/vendor/font-awesome-4.7/css/font-awesome.min.css" rel="stylesheet" media="all">
+    <!-- <link href="../static/vendor/font-awesome-4.7/css/font-awesome.min.css" rel="stylesheet" media="all"> -->
     <!-- Font special for pages-->
     <link href="https://fonts.googleapis.com/css?family=Roboto:100,100i,300,300i,400,400i,500,500i,700,700i,900,900i" rel="stylesheet">
 
@@ -82,30 +84,28 @@
                             </div>
                         </div>
                             <div class="p-t-20">
-                                <button class="btn btn--radius btn--green" type="submit" id="btn1">Open Logs</button>
+                                <button class="btn btn--radius btn--green" type="submit" id="btn1"><i class="fas fa-unlock"></i> Open Logs</button>
                             </div>
                             <div class="p-t-20">
-                                <button class="btn btn--radius btn--green" type="submit" id="btn2">Close Logs</button>
+                                <button class="btn btn--radius btn--green" type="submit" id="btn2"><i class="fas fa-lock"></i> Close Logs</button>
                             </div>
                             <div class="p-t-20">
-                                <button class="btn btn--radius btn--green" type="submit" id="btn3">Request Log</button>
+                                <button class="btn btn--radius btn--green" type="submit" id="btn3"><i class="fas fa-download"></i> Request Log</button>
                             </div>
                     </form>
-                    <div class="p-t-20">
-                        <button type="button" class="btn btn--radius btn--green" id="btnToggleTable">Toggle Table <span>-</span></button>
-                    </div>
                 </div>
             </div><br>
 
             <div class="card card-1">
                 <div class="record_wrapper">
-                    <div class="record_table">
-                        <div class="record_row header blue">
-                        <div class="record_cell">
-                            Email
-                        </div>
+                    <button class="btn btn--radius btn--green btn--reload" type="submit" id="btn_reload"><i class="fas fa-sync-alt"> Reload</i></button>
+                    <div class="record_table" id="record_table">
+                        <!-- <div class="record_row header blue">
                         <div class="record_cell">
                             Machine
+                        </div>
+                        <div class="record_cell">
+                            Email
                         </div>
                         <div class="record_cell">
                             Date Activated
@@ -113,7 +113,7 @@
                         <div class="record_cell">
                             Status
                         </div>
-                        </div>
+                        </div> -->
                     </div>
                     </div>
                 </div>

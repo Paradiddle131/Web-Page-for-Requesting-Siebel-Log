@@ -16,18 +16,59 @@
     } catch (err) {
         console.log(err);
     }
-    /*LOAD JSON DATA*/
-    $.getJSON("static/data/active_servers.json", function (data) { 
-        $.each(data, function (key, value) { 
-            addOpenMachine(value.Email, value.Machine, value.Date_activated, value.Status, false);
-        }); 
-    }); 
+    fetchTable();
 })(jQuery);
 
+function reloadCSS() {
+  const links = document.getElementsByTagName('link');
+  console.log(links);
+  // Array.from(links)
+  //   .filter(link => link.rel.toLowerCase() === 'stylesheet' && link.href)
+  //   .forEach(link => {
+  //     const url = new URL(link.href, location.href);
+  //     url.searchParams.set('forceReload', Date.now());
+  //     link.href = url.href;
+  //   });
+}
+
+// reloadCSS();
+
+
+function fetchTable(doPush=false){
+    // xhr = new XMLHttpRequest();
+    var loadUrl = "static/data/active_servers.json";
+    // xhr.open("GET", loadUrl, true); 
+    // xhr.send(null);
+    // console.log(xhr);
+    // console.log(xhr.response);
+    $("#record_table").empty();
+    $.getJSON(loadUrl, function(data){ 
+        console.log("INSIDE_JSON");
+        console.log(data);
+        $("#record_table").append("<div class=\"record_row header blue\">" +
+            "<div class=\"record_cell\">" +
+                "Machine" +
+            "</div>" +
+            "<div class=\"record_cell\">" +
+                "Email" +
+            "</div>" +
+            "<div class=\"record_cell\">" +
+                "Date Activated" +
+            "</div>" +
+            "<div class=\"record_cell\">" +
+                "Status" +
+            "</div>" +
+        "</div>");
+        $.each(data, function (key, value) { 
+            updateActiveServers(value.Email, key, value.Date_activated, value.Status, doPush);
+        });
+    });
+}
 
 var btn1 = document.getElementById("btn1");
 var btn2 = document.getElementById("btn2");
 var btn3 = document.getElementById("btn3");
+var btn_reload = document.getElementById("btn_reload");
 var server_name = "";
 
 
@@ -47,42 +88,37 @@ function blobToString(b) {
     return x.responseText;
 }
 
-function addOpenMachine(email, machine, date, status, doPush) {
-    $(".record_table").append("<div class=\"record_row\">" + 
-        "<div class=\"record_cell\" data-title=\"Email\">" + 
-            email + 
-        "</div>" + 
-        "<div class=\"record_cell\" data-title=\"Machine\">" + 
-            machine + 
-        "</div>" + 
-        "<div class=\"record_cell\" data-title=\"Date Activated\">" + 
-            date + 
-        "</div>" + 
-        "<div class=\"record_cell\" data-title=\"Status\">" + 
-            status + 
-        "</div>" + 
-        "</div>");
+function updateActiveServers(email, machine, date, status, doPush) {
+    console.log("doPush:", doPush);
     if (doPush) {
-        $.getJSON("static/data/active_servers.json", function (data) {
-            data.push({
-                "Email": email,
-                "Machine": machine,
-                "Date_activated": date,
-                "Status": status
-            });
-        }); 
-        // XHR SEND POST REQUEST
+        console.log("Inside");
         var http = new XMLHttpRequest();
         var data = new FormData();
-        data.append('Email', email);
         data.append('Machine', machine);
+        data.append('Email', email);
         data.append('Date_activated', date);
         data.append('Status', status);
         http.open("POST", "http://172.24.84.34:5004/request_log");
         http.setRequestHeader("Access-Control-Allow-Headers", "Accept");
         http.setRequestHeader("Access-Control-Allow-Origin", "http://172.24.84.34:5004/request_log");
         http.send(data);
+    } else {
+        $("#record_table").append("<div class=\"record_row\">" + 
+            "<div class=\"record_cell\" data-title=\"Machine\">" + 
+                machine + 
+            "</div>" + 
+            "<div class=\"record_cell\" data-title=\"Email\">" + 
+                email + 
+            "</div>" + 
+            "<div class=\"record_cell\" data-title=\"Date Activated\">" + 
+                date + 
+            "</div>" + 
+            "<div class=\"record_cell\" data-title=\"Status\">" + 
+                status + 
+            "</div>" + 
+            "</div>");
     }
+    doPush = false;
 }
 
 
@@ -101,6 +137,12 @@ window.addEventListener("load", function () {
 
     btn3.onclick = function (e) {
         action = "REQUEST_LOG";
+    }
+
+    btn_reload.onclick = function (e) {
+        location.reload(true);
+        // fetchTable(false);
+        // console.log("Table Reloaded.");
     }
 
     form.addEventListener("submit", function (event) {
@@ -140,8 +182,10 @@ window.addEventListener("load", function () {
                 var responseJSON = JSON.parse(response);
                 console.log(responseJSON);
                 if (responseJSON["response_message"].match("Log level increased.")) {
-                    addOpenMachine("NewAddedEmail@vodafone.com", $("#machine_no option:selected").text(), new Date(), "Active", true);
+                    updateActiveServers("NewAddedEmail@vodafone.com", $("#machine_no option:selected").text(), new Date(), "Active", true);
                     alert("Log level increased.");
+                    // fetchTable(false);
+                    $(".record_table").empty();
                 } else if (responseJSON["response_message"].match("Log level decreased.")) {
                     alert("Log level decreased.");
                 } else if (responseJSON["response_message"].match("Success!")) {
@@ -159,10 +203,3 @@ window.addEventListener("load", function () {
         XHR.send(FD);
     }
 });
-
-
-$('#btnToggleTable').click(function(){
-    $(this).find('span').text(function(_, value){return value=='-'?'+':'-'});
-    $(this).nextUntil('div.row').slideToggle(100, function(){
-    });
- });

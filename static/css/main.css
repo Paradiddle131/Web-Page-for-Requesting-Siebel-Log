@@ -218,6 +218,11 @@ h6 {
   background: #57b846;
 }
 
+.btn--reload {
+  line-height: 30px;
+  padding: 0 5%;
+}
+
 .btn--green:hover {
   background: #4dae3c;
 }

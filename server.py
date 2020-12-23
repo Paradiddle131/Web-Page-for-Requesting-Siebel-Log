@@ -6,6 +6,7 @@ from os import getenv, system, getcwd, path
 import time
 from glob import glob
 from pprint import pprint
+from logging import error
 
 app = Flask(__name__)
 args = None
@@ -51,17 +52,22 @@ def get_request_attribute(req_data, attribute_name):
 def request_log():
 	try:
 		req_data = request.form
-		if req_data.get('Action') is None:
+		if req_data.get('Status') is not None:
 			with open("static/data/active_servers.json") as d:
+				print("\n\n\n\t@@@\n\n\n")
 				data = load(d)
+				pprint(data)
 			with open("static/data/active_servers.json", "w+") as f:
-				current_data = {
-					"Email": req_data.get("Email"),
-					"Machine": req_data.get("Machine"),
-					"Date_activated": req_data.get("Date_activated"),
-					"Status": req_data.get("Status")
-				}
-				data.append(current_data)
+				# current_data = {
+				# 	"Email": req_data.get("Email"),
+				# 	"Machine": req_data.get("Machine"),
+				# 	"Date_activated": req_data.get("Date_activated"),
+				# 	"Status": req_data.get("Status")
+				# }
+				data[req_data.get("Machine")]["Email"] = req_data.get("Email")
+				data[req_data.get("Machine")]["Date_activated"] = req_data.get("Date_activated")
+				data[req_data.get("Machine")]["Status"] = req_data.get("Status")
+				# data.append(current_data)
 				dump(data, f)
 			return app.response_class(
 			    response=dumps("Success!"),
@@ -101,7 +107,7 @@ def request_log():
 		)
 	except Exception as e:
 		print("ERROR OCCURRED:\n\n")
-		print(e)
+		error(e, exc_info=True)
 		return app.response_class(
 		    response=dumps("Something wrong!"),
 		    status=404,
