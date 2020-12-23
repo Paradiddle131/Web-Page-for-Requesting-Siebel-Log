@@ -40,8 +40,8 @@ def records():
 	
 	
 def run_batch(args):
-	system(fr'C:\Windows\System32\cmd.exe /c {path_batch} "{args["serv_ip"]}" "{args["servpw"]}" "{args["path_log"]}" "{args["path_unix_log"]}" "{args["winscp_hostkey"]}" "{args["Action"]}" "{args["keyword"]}" "{args["machine_no"]}" "{args["server_name"]}" "{args["time_log"]}" "{args["component"]}"')
-	#subprocess.Popen(["plink_.bat", args["serv_ip"], args["servpw"], args["path_log"], args["path_unix_log"], args['Action'], args['keyword'], args['machine_no'], args["time_log"], args["component"]], shell=True)
+	system(fr'C:\Windows\System32\cmd.exe /c {path_batch} "{args["serv_ip"]}" "{args["servpw"]}" "{args["path_log"]}" "{args["path_unix_log"]}" "{args["winscp_hostkey"]}" "{args["Server_action"]}" "{args["keyword"]}" "{args["machine_no"]}" "{args["server_name"]}" "{args["time_log"]}" "{args["component"]}"')
+	#subprocess.Popen(["plink_.bat", args["serv_ip"], args["servpw"], args["path_log"], args["path_unix_log"], args['Server_action'], args['keyword'], args['machine_no'], args["time_log"], args["component"]], shell=True)
 
 
 def get_request_attribute(req_data, attribute_name):
@@ -51,24 +51,42 @@ def get_request_attribute(req_data, attribute_name):
 @app.route("/request_log", methods=["POST"])
 def request_log():
 	try:
-		req_data = request.form
-		if req_data.get('Status') is not None:
-			with open("static/data/active_servers.json") as d:
-				print("\n\n\n\t@@@\n\n\n")
-				data = load(d)
-				pprint(data)
-			with open("static/data/active_servers.json", "w+") as f:
-				# current_data = {
-				# 	"Email": req_data.get("Email"),
-				# 	"Machine": req_data.get("Machine"),
-				# 	"Date_activated": req_data.get("Date_activated"),
-				# 	"Status": req_data.get("Status")
-				# }
-				data[req_data.get("Machine")]["Email"] = req_data.get("Email")
-				data[req_data.get("Machine")]["Date_activated"] = req_data.get("Date_activated")
-				data[req_data.get("Machine")]["Status"] = req_data.get("Status")
-				# data.append(current_data)
+		req_data = request.form if len(request.form) != 0 else request.json
+		if req_data.get('Server_action') == "LOG_USER_ACTIVITY":
+			with open("static/data/user_activity.json") as d:
+				try:
+					data = load(d)
+				except:
+					print("No data found.")
+					data = []
+			current_data = {
+				"Email": req_data.get("Email"),
+				"Machine": req_data.get("Machine"),
+				"Date_activated": req_data.get("Date_activated"),
+				"User_action": req_data.get("User_action")
+			}
+			data.append(current_data)
+			with open("static/data/user_activity.json", "w+") as f:
 				dump(data, f)
+			print("user_activity.json has been updated.")
+			return app.response_class(
+			    response=dumps("Success!"),
+			    status=200,
+			    mimetype='application/json'
+			)				
+		elif req_data.get('Status') is not None:
+			with open("static/data/active_servers.json") as d:
+				try:
+					data = load(d)
+				except:
+					print("No data found.")
+					data = []
+			data[req_data.get("Machine")]["Email"] = req_data.get("Email")
+			data[req_data.get("Machine")]["Date_activated"] = req_data.get("Date_activated")
+			data[req_data.get("Machine")]["Status"] = req_data.get("Status")
+			with open("static/data/active_servers.json", "w+") as f:
+				dump(data, f)
+			print("active_servers.json has been updated.")
 			return app.response_class(
 			    response=dumps("Success!"),
 			    status=200,
@@ -76,26 +94,27 @@ def request_log():
 			)	
 		isTest = True if 'isTest' in req_data else False
 		if not isTest:
+			pass
 			args.update({"serv_ip": get_request_attribute(req_data, 'IP'),
 						 "server_name": "SBL_ADM01"})
 		else:
 			args.update({"server_name": "SBL_ADM01"})
 		time_log = str(time.time())
-		args.update({"Action": req_data.get('Action'),
+		args.update({"Server_action": req_data.get('Server_action'),
 					"keyword": req_data.get('keyword'),
 					"machine_no": req_data.get('machine_no'),
 					"time_log": time_log,
 					"component": get_request_attribute(req_data, 'Component_name')})
 		run_batch(args)
-		if req_data.get('Action') == "REQUEST_LOG":
+		if req_data.get('Server_action') == "REQUEST_LOG":
 			print("SENDING FILE...")
 			return send_file(glob(f"{getenv('path_file_to_upload')}\{time_log}*.zip")[-1], attachment_filename="your_log.zip")
-		elif req_data.get('Action') == "OPEN_LOG":
+		elif req_data.get('Server_action') == "OPEN_LOG":
 			open_machines.append(servers[int(req_data.get("machine_no"))-1]['hostname'])
 			response_status = 201
 			response.update({"response_message": "Log level increased.",
 							"open_machines": open_machines})
-		elif req_data.get('Action') == "CLOSE_LOG":
+		elif req_data.get('Server_action') == "CLOSE_LOG":
 			open_machines.remove(servers[int(req_data.get("machine_no"))-1]['hostname'])
 			response_status = 202
 			response.update({"response_message": "Log level decreased.",

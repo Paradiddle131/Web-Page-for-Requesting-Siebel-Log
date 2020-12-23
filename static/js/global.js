@@ -21,16 +21,9 @@
 
 
 function fetchTable(doPush=false){
-    // xhr = new XMLHttpRequest();
     var loadUrl = "static/data/active_servers.json";
-    // xhr.open("GET", loadUrl, true); 
-    // xhr.send(null);
-    // console.log(xhr);
-    // console.log(xhr.response);
     $("#record_table").empty();
     $.getJSON(loadUrl, function(data){ 
-        console.log("INSIDE_JSON");
-        console.log(data);
         $("#record_table").append("<div class=\"record_row header blue\">" +
             "<div class=\"record_cell\">" +
                 "Machine" +
@@ -74,10 +67,9 @@ function blobToString(b) {
     return x.responseText;
 }
 
+
 function updateActiveServers(email, machine, date, status, doPush) {
-    console.log("doPush:", doPush);
     if (doPush) {
-        console.log("Inside");
         var http = new XMLHttpRequest();
         var data = new FormData();
         data.append('Machine', machine);
@@ -109,19 +101,19 @@ function updateActiveServers(email, machine, date, status, doPush) {
 
 window.addEventListener("load", function () {
     const form = document.getElementById("myForm");
-    let action;
+    let server_action;
+    var date_log = new Date().toString();
+    date_log = date_log.substring(0, date_log.length-21);
     btn1.onclick = function (e) {
-        console.log("open onclick");
-        action = "OPEN_LOG";
+        server_action = "OPEN_LOG";
     }
 
     btn2.onclick = function (e) {
-        console.log("close onclick");
-        action = "CLOSE_LOG";
+        server_action = "CLOSE_LOG";
     }
 
     btn3.onclick = function (e) {
-        action = "REQUEST_LOG";
+        server_action = "REQUEST_LOG";
     }
 
     btn_reload.onclick = function (e) {
@@ -132,20 +124,16 @@ window.addEventListener("load", function () {
 
     form.addEventListener("submit", function (event) {
         event.preventDefault();
-
         sendData();
     });
     function sendData() {
         const XHR = new XMLHttpRequest();
         const FD = new FormData(form);
         XHR.addEventListener("load", function (event) {
-            console.log(action);
-            if (action = "OPEN_LOG"){
-                console.log("open");
+            if (server_action = "OPEN_LOG"){
                 // $("#btn1").attr("disabled", true);
                 // $("#btn2").attr("disabled", false);
-            } else if (action = "CLOSE_LOG"){
-                console.log("close");
+            } else if (server_action = "CLOSE_LOG"){
                 // $("#btn1").attr("disabled", false);
                 // $("#btn2").attr("disabled", true);
             }
@@ -165,16 +153,16 @@ window.addEventListener("load", function () {
             } else if (this.response.type === "application/json"){ 
                 var response = blobToString(this.response);
                 var responseJSON = JSON.parse(response);
-                console.log(responseJSON);
                 if (responseJSON["response_message"].match("Log level increased.")) {
-                    updateActiveServers("NewAddedEmail@vodafone.com", $("#machine_no option:selected").text(), new Date(), "Active", true);
+                    updateActiveServers("NewAddedEmail@vodafone.com", $("#machine_no option:selected").text(), date_log, "Active", true);
                     fetchTable(false);
                     alert("Log level increased.");
-                    $(".record_table").empty();
+                    logActions("LOG_USER_ACTIVITY", "Increase");
                 } else if (responseJSON["response_message"].match("Log level decreased.")) {
                     updateActiveServers("-", $("#machine_no option:selected").text(), "-", "Not Active", true);
                     fetchTable(false);
                     alert("Log level decreased.");
+                    logActions("LOG_USER_ACTIVITY", "Decrease");
                 } else if (responseJSON["response_message"].match("Success!")) {
                     console.log("Success!");
                 } else {
@@ -185,8 +173,25 @@ window.addEventListener("load", function () {
         XHR.setRequestHeader("Access-Control-Allow-Headers", "Accept");
         XHR.setRequestHeader("Access-Control-Allow-Origin", "http://172.24.84.34:5004/request_log");
         XHR.responseType='blob';
-        FD.append("Action", action);
+        FD.append("Server_action", server_action);
         FD.set("server_name", server_name);
         XHR.send(FD);
+    }
+    function logActions(server_action, user_action) {
+        var data = {
+            "Server_action": server_action,
+            "Email": "emailToBeFetched@vodafone.com",
+            "Machine": $("#machine_no option:selected").text(),
+            "Date_activated": date_log,
+            "User_action": user_action
+        };
+        data = JSON.stringify(data);
+        var http = new XMLHttpRequest();
+        http.open("POST", "http://172.24.84.34:5004/request_log");
+        http.setRequestHeader("Access-Control-Allow-Headers", "Accept");
+        http.setRequestHeader("Access-Control-Allow-Origin", "http://172.24.84.34:5004/request_log");
+        http.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+        http.send(data);
+        // postXHR(data);
     }
 });
