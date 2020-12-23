@@ -105,22 +105,29 @@ function updateActiveServers(email, machine, date, status, doPush) {
     }
 }
 
+function getTime() {
+    var date_log = new Date().toString();
+    return date_log.substring(0, date_log.length-21);
+}
+
 
 window.addEventListener("load", function () {
     const form = document.getElementById("myForm");
     let server_action;
-    var date_log = new Date().toString();
-    date_log = date_log.substring(0, date_log.length-21);
+    var date_log;
     btn1.onclick = function (e) {
         server_action = "OPEN_LOG";
+        date_log = getTime();
     }
 
     btn2.onclick = function (e) {
         server_action = "CLOSE_LOG";
+        date_log = getTime();
     }
 
     btn3.onclick = function (e) {
         server_action = "REQUEST_LOG";
+        date_log = getTime();
     }
 
     btn_reload.onclick = function (e) {
@@ -157,6 +164,7 @@ window.addEventListener("load", function () {
                 a.click();
                 window.URL.revokeObjectURL(url);
                 a.remove();
+                logActions("LOG_USER_ACTIVITY", "Request");
             } else if (this.response.type === "application/json"){ 
                 var response = blobToString(this.response);
                 var responseJSON = JSON.parse(response);
