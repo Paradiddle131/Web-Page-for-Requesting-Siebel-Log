@@ -67,19 +67,26 @@ function blobToString(b) {
     return x.responseText;
 }
 
+function postXHR(data) {
+    var http = new XMLHttpRequest();
+    http.open("POST", "http://172.24.84.34:5004/request_log");
+    http.setRequestHeader("Access-Control-Allow-Headers", "Accept");
+    http.setRequestHeader("Access-Control-Allow-Origin", "http://172.24.84.34:5004/request_log");
+    if (typeof data == "string") { // assumed a stringified JSON
+        http.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    }
+    http.send(data);
+}
+
 
 function updateActiveServers(email, machine, date, status, doPush) {
     if (doPush) {
-        var http = new XMLHttpRequest();
         var data = new FormData();
         data.append('Machine', machine);
         data.append('Email', email);
         data.append('Date_activated', date);
         data.append('Status', status);
-        http.open("POST", "http://172.24.84.34:5004/request_log");
-        http.setRequestHeader("Access-Control-Allow-Headers", "Accept");
-        http.setRequestHeader("Access-Control-Allow-Origin", "http://172.24.84.34:5004/request_log");
-        http.send(data);
+        postXHR(data)
     } else {
         $("#record_table").append("<div class=\"record_row\">" + 
             "<div class=\"record_cell\" data-title=\"Machine\">" + 
@@ -186,12 +193,6 @@ window.addEventListener("load", function () {
             "User_action": user_action
         };
         data = JSON.stringify(data);
-        var http = new XMLHttpRequest();
-        http.open("POST", "http://172.24.84.34:5004/request_log");
-        http.setRequestHeader("Access-Control-Allow-Headers", "Accept");
-        http.setRequestHeader("Access-Control-Allow-Origin", "http://172.24.84.34:5004/request_log");
-        http.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-        http.send(data);
-        // postXHR(data);
+        postXHR(data);
     }
 });
