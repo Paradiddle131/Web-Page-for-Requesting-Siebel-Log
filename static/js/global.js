@@ -19,20 +19,6 @@
     fetchTable();
 })(jQuery);
 
-function reloadCSS() {
-  const links = document.getElementsByTagName('link');
-  console.log(links);
-  // Array.from(links)
-  //   .filter(link => link.rel.toLowerCase() === 'stylesheet' && link.href)
-  //   .forEach(link => {
-  //     const url = new URL(link.href, location.href);
-  //     url.searchParams.set('forceReload', Date.now());
-  //     link.href = url.href;
-  //   });
-}
-
-// reloadCSS();
-
 
 function fetchTable(doPush=false){
     // xhr = new XMLHttpRequest();
@@ -118,7 +104,6 @@ function updateActiveServers(email, machine, date, status, doPush) {
             "</div>" + 
             "</div>");
     }
-    doPush = false;
 }
 
 
@@ -183,10 +168,12 @@ window.addEventListener("load", function () {
                 console.log(responseJSON);
                 if (responseJSON["response_message"].match("Log level increased.")) {
                     updateActiveServers("NewAddedEmail@vodafone.com", $("#machine_no option:selected").text(), new Date(), "Active", true);
+                    fetchTable(false);
                     alert("Log level increased.");
-                    // fetchTable(false);
                     $(".record_table").empty();
                 } else if (responseJSON["response_message"].match("Log level decreased.")) {
+                    updateActiveServers("-", $("#machine_no option:selected").text(), "-", "Not Active", true);
+                    fetchTable(false);
                     alert("Log level decreased.");
                 } else if (responseJSON["response_message"].match("Success!")) {
                     console.log("Success!");
