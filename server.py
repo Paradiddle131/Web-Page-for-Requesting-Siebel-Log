@@ -136,4 +136,4 @@ def request_log():
 
 if __name__ == "__main__":
 	setup()
-	app.run(host="172.24.84.34", port=5004, debug=False)
+	app.run(host=getenv("host_address"), port=5004, debug=False)
