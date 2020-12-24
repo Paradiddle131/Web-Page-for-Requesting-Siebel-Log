@@ -196,8 +196,9 @@ h6 {
 .btn {
   line-height: 40px;
   display: inline-block;
-  padding: 0 19%;
+  padding: 0 15%;
   cursor: pointer;
+  width: 100%;
   font-family: "Roboto", "Arial", "Helvetica Neue", sans-serif;
   color: #fff;
   -webkit-transition: all 0.4s ease;
@@ -221,6 +222,7 @@ h6 {
 .btn--reload {
   line-height: 30px;
   padding: 0 5%;
+  width:  auto;
 }
 
 .btn--green:hover {
