@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/Paradiddle131/Web-Page-for-Requesting-Siebel-Log#readme",
   "dependencies": {
+    "dotenv": "^8.2.0",
     "mongoose": "^5.11.8"
   }
 }

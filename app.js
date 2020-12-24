@@ -6,15 +6,16 @@ const expressEjsLayout = require('express-ejs-layouts')
 const session = require('express-session');
 const flash = require('connect-flash');
 const passport = require('passport');
+require('dotenv').config();
 app.use(express.static('public'));
 require("./config/passport")(passport)
 //mongoose
 // mongoose.connect('mongodb://localhost:27017/dbname', {useNewUrlParser: true, useUnifiedTopology : true})
-mongoose.connect('mongodb+srv://botAdmin:ksgnBbGF2lQGTLXM@whatsappcluster.p1ato.mongodb.net/test?authSource=admin&replicaSet=atlas-vz7qzu-shard-0&readPreference=primary&appname=MongoDB%20Compass%20Community&ssl=true', {
+mongoose.connect(process.env.MONGODB_CONNECTION_STRING, {
         useNewUrlParser: true,
         useUnifiedTopology: true
     })
-    .then(() => console.log('connected,,'))
+    .then(() => console.log('Connected to MongoDB.'))
     .catch((err) => console.log(err));
 //EJS
 app.set('view engine', 'ejs');
