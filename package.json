@@ -1,0 +1,23 @@
+{
+  "name": "web-page-for-requesting-siebel-log",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Paradiddle131/Web-Page-for-Requesting-Siebel-Log.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Paradiddle131/Web-Page-for-Requesting-Siebel-Log/issues"
+  },
+  "homepage": "https://github.com/Paradiddle131/Web-Page-for-Requesting-Siebel-Log#readme",
+  "dependencies": {
+    "mongoose": "^5.11.8"
+  }
+}
