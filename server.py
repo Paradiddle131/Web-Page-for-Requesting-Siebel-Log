@@ -22,10 +22,10 @@ def setup():
 	args = {"serv_ip": getenv('serv_ip'),
 			"servpw": getenv('servpw'),
 			"path_log": getenv('path_log'),
-			"path_unix_log": getenv('path_unix_log'),
+			"path_unix_log": getenv('path_unix_log_ADM'),
 			"winscp_hostkey": getenv('winscp_hostkey')
 	}
-	with open("servers.json", "r") as f:
+	with open("static/data/servers.json", "r") as f:
 		servers = load(f)
 
 		
@@ -52,6 +52,7 @@ def get_request_attribute(req_data, attribute_name):
 def request_log():
 	try:
 		req_data = request.form if len(request.form) != 0 else request.json
+		print(req_data)
 		if req_data.get('Server_action') == "LOG_USER_ACTIVITY":
 			with open("static/data/user_activity.json") as d:
 				try:
@@ -96,7 +97,10 @@ def request_log():
 		if not isTest:
 			pass
 			args.update({"serv_ip": get_request_attribute(req_data, 'IP'),
-						 "server_name": "SBL_ADM01"})
+						 "servpw": get_request_attribute(req_data, 'Password'),
+						 "winscp_hostkey": get_request_attribute(req_data, 'hostkey'),
+						 "server_name": get_request_attribute(req_data, 'server_name'),
+						 "path_unix_log": getenv('path_unix_log')})
 		else:
 			args.update({"server_name": "SBL_ADM01"})
 		time_log = str(time.time())
@@ -110,12 +114,18 @@ def request_log():
 			print("SENDING FILE...")
 			return send_file(glob(f"{getenv('path_file_to_upload')}\{time_log}*.zip")[-1], attachment_filename="your_log.zip")
 		elif req_data.get('Server_action') == "OPEN_LOG":
-			open_machines.append(servers[int(req_data.get("machine_no"))-1]['hostname'])
+			try:
+				open_machines.append(servers[int(req_data.get("machine_no"))-1]['hostname'])
+			except:
+				print(servers[int(req_data.get("machine_no"))-1]['hostname'] + " is not open.")
 			response_status = 201
 			response.update({"response_message": "Log level increased.",
 							"open_machines": open_machines})
 		elif req_data.get('Server_action') == "CLOSE_LOG":
-			open_machines.remove(servers[int(req_data.get("machine_no"))-1]['hostname'])
+			try:
+				open_machines.remove(servers[int(req_data.get("machine_no"))-1]['hostname'])
+			except:
+				print(servers[int(req_data.get("machine_no"))-1]['hostname'] + " is not open.")
 			response_status = 202
 			response.update({"response_message": "Log level decreased.",
 							"open_machines": open_machines})
@@ -136,4 +146,4 @@ def request_log():
 
 if __name__ == "__main__":
 	setup()
-	app.run(host=getenv("host_address"), port=5004, debug=False)
+	app.run(host="172.24.84.34", port=5004, debug=False)

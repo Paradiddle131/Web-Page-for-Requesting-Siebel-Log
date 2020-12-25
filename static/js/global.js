@@ -69,9 +69,9 @@ function blobToString(b) {
 
 function postXHR(data) {
     var http = new XMLHttpRequest();
-    http.open("POST", "http://172.24.84.34:5004/request_log");
+    http.open("POST", "http://itcisopsadmin:5004/request_log");
     http.setRequestHeader("Access-Control-Allow-Headers", "Accept");
-    http.setRequestHeader("Access-Control-Allow-Origin", "http://172.24.84.34:5004/request_log");
+    http.setRequestHeader("Access-Control-Allow-Origin", "http://itcisopsadmin:5004/request_log");
     if (typeof data == "string") { // assumed a stringified JSON
         http.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
     }
@@ -184,9 +184,9 @@ window.addEventListener("load", function () {
                     alert("Something bad happened.");
             }
         }});
-        XHR.open("POST", "http://172.24.84.34:5004/request_log");
+        XHR.open("POST", "http://itcisopsadmin:5004/request_log");
         XHR.setRequestHeader("Access-Control-Allow-Headers", "Accept");
-        XHR.setRequestHeader("Access-Control-Allow-Origin", "http://172.24.84.34:5004/request_log");
+        XHR.setRequestHeader("Access-Control-Allow-Origin", "http://itcisopsadmin:5004/request_log");
         XHR.responseType='blob';
         FD.append("Server_action", server_action);
         FD.set("server_name", server_name);
@@ -203,4 +203,19 @@ window.addEventListener("load", function () {
         data = JSON.stringify(data);
         postXHR(data);
     }
+});
+
+//Reference: https://jsfiddle.net/fwv18zo1/
+var $machine_no = $('#machine_no'),
+    $server_name = $('#server_name'),
+    $options = $server_name.find('option');
+
+$machine_no.on('change', function () {
+    $server_name.html($options.filter('[value="' + this.value + '"]'));
+    server_name = $server_name.find('option:selected').text();
+}).trigger('change');
+
+
+$server_name.on('change', function () {
+    server_name = $(this).find('option:selected').text();
 });
