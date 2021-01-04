@@ -2,7 +2,7 @@ from flask import Flask, request, send_file, render_template
 from json import dump, dumps, load
 import subprocess
 from dotenv import load_dotenv
-from os import getenv, system, getcwd, path
+from os import getenv, system, getcwd, path, chdir
 import time
 from glob import glob
 from pprint import pprint
@@ -39,9 +39,42 @@ def records():
     return render_template("records.html")
 	
 	
-def run_batch(args):
-	system(fr'C:\Windows\System32\cmd.exe /c {path_batch} "{args["serv_ip"]}" "{args["servpw"]}" "{args["path_log"]}" "{args["path_unix_log"]}" "{args["winscp_hostkey"]}" "{args["Server_action"]}" "{args["keyword"]}" "{args["machine_no"]}" "{args["server_name"]}" "{args["time_log"]}" "{args["component"]}"')
-	#subprocess.Popen(["plink_.bat", args["serv_ip"], args["servpw"], args["path_log"], args["path_unix_log"], args['Server_action'], args['keyword'], args['machine_no'], args["time_log"], args["component"]], shell=True)
+def batch_find_file(args):
+	# system(fr'C:\Windows\System32\cmd.exe /c {path_batch} "{args["serv_ip"]}" "{args["servpw"]}" "{args["path_log"]}" "{args["path_unix_log"]}" "{args["winscp_hostkey"]}" "{args["Server_action"]}" "{args["keyword"]}" "{args["machine_no"]}" "{args["server_name"]}" "{args["time_log"]}" "{args["component_name"]}"')
+	batcmd = f'''plink -hostkey "{args["winscp_hostkey"]}" -batch siebel@{args["serv_ip"]} -pw {args["servpw"]} "cd {args["path_unix_log"]};echo $(grep -l {args["keyword"]} {args["component_name"]}*.log);"'''
+	return subprocess.check_output(batcmd, shell=True, text=True).split()
+
+def batch_request_log(args, files):
+	files_str = ""
+	for _file in files:
+		batcmd = f'''"C:\\Program Files (x86)\\WinSCP\\WinSCP.exe" /command "option batch on" "option confirm off" "open -hostkey=""{args["winscp_hostkey"]}"" siebel:"{args["servpw"]}"@"{args["serv_ip"]}"" "get {args["path_unix_log"]}/{_file} E:\\LogCopyAutomation\\{_file}" "/log={args["path_log"]}\\LogCopy_{_file}"'''
+		print("@@ WINSCP OUTPUT @@\n\n")
+		subprocess.check_output(batcmd, shell=True, text=True)
+		files_str += _file + " "
+	batcmd = f'''"C:\\Program Files\\7-Zip\\7z.exe" a {args["keyword"]}.zip {files_str}-mx5'''
+	print("@@ 7z OUTPUT @@\n\n")
+	chdir("E:\\LogCopyAutomation")
+	subprocess.check_output(batcmd, shell=True, text=True)
+	for _file in files:
+		subprocess.check_output(f"del {_file}", shell=True, text=True)
+	chdir(path_project)
+	
+
+
+def batch_change_log_level(args, action):
+	'''action: "increase" or "decrease" '''
+	if action != "increase" and action != "decrease":
+		print("Wrong argument passed:", action)
+		return None
+	batcmd = f'''plink -hostkey "{args["winscp_hostkey"]}" -batch siebel@{args["serv_ip"]} -pw {args["servpw"]} "cd {getenv("path_scripts")};./log_{action}.sh {args["server_name"]} {args["component"]};"'''
+	print("@@ LOG CHANGE LEVEL COMMAND @@\n\n")
+	print(batcmd)
+	output = subprocess.check_output(batcmd, shell=True, text=True)
+	assert not output
+	print("@@ LOG CHANGE LEVEL OUTPUT @@\n\n")
+	print(output)
+	return output
+
 
 
 def get_request_attribute(req_data, attribute_name):
@@ -100,7 +133,10 @@ def request_log():
 						 "servpw": get_request_attribute(req_data, 'Password'),
 						 "winscp_hostkey": get_request_attribute(req_data, 'hostkey'),
 						 "server_name": get_request_attribute(req_data, 'server_name'),
-						 "path_unix_log": getenv('path_unix_log')})
+						 "path_unix_log": getenv('path_unix_log'),
+						 "component_name": get_request_attribute(req_data, 'component_name'),
+						 "component": get_request_attribute(req_data, 'component')},
+						 )
 		else:
 			args.update({"server_name": "SBL_ADM01"})
 		time_log = str(time.time())
@@ -108,13 +144,19 @@ def request_log():
 					"keyword": req_data.get('keyword'),
 					"machine_no": req_data.get('machine_no'),
 					"time_log": time_log,
-					"component": get_request_attribute(req_data, 'Component_name')})
-		run_batch(args)
+					"component_name": get_request_attribute(req_data, 'component_name'),
+					"component": get_request_attribute(req_data, 'component')})
 		if req_data.get('Server_action') == "REQUEST_LOG":
+			batch_change_log_level(args, "decrease")
+			files = batch_find_file(args)
+			assert files, "Couldn't find any files."
+			#TODO: method: return 404 
+			batch_request_log(args, files)
 			print("SENDING FILE...")
 			return send_file(glob(path.join(getenv('path_file_to_upload'), req_data.get('keyword')+".zip"))[-1], attachment_filename="your_log.zip")
 		elif req_data.get('Server_action') == "OPEN_LOG":
 			try:
+				batch_change_log_level(args, "increase")
 				open_machines.append(servers[int(req_data.get("machine_no"))-1]['hostname'])
 			except:
 				print(servers[int(req_data.get("machine_no"))-1]['hostname'] + " is not open.")
@@ -123,6 +165,7 @@ def request_log():
 							"open_machines": open_machines})
 		elif req_data.get('Server_action') == "CLOSE_LOG":
 			try:
+				batch_change_log_level(args, "decrease")
 				open_machines.remove(servers[int(req_data.get("machine_no"))-1]['hostname'])
 			except:
 				print(servers[int(req_data.get("machine_no"))-1]['hostname'] + " is not open.")
@@ -146,4 +189,4 @@ def request_log():
 
 if __name__ == "__main__":
 	setup()
-	app.run(host="172.24.84.34", port=5004, debug=False)
+	app.run(host=getenv("host_address"), port=5005, debug=False)

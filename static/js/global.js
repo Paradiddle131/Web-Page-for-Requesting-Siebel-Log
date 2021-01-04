@@ -48,7 +48,6 @@ var btn1 = document.getElementById("btn1");
 var btn2 = document.getElementById("btn2");
 var btn3 = document.getElementById("btn3");
 var btn_reload = document.getElementById("btn_reload");
-var server_name = "";
 
 
 function blobToFile(theBlob, fileName){
@@ -69,9 +68,9 @@ function blobToString(b) {
 
 function postXHR(data) {
     var http = new XMLHttpRequest();
-    http.open("POST", "http://itcisopsadmin:5004/request_log");
+    http.open("POST", "http://itcisopsadmin:5005/request_log");
     http.setRequestHeader("Access-Control-Allow-Headers", "Accept");
-    http.setRequestHeader("Access-Control-Allow-Origin", "http://itcisopsadmin:5004/request_log");
+    http.setRequestHeader("Access-Control-Allow-Origin", "http://itcisopsadmin:5005/request_log");
     if (typeof data == "string") { // assumed a stringified JSON
         http.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
     }
@@ -144,6 +143,8 @@ window.addEventListener("load", function () {
         const XHR = new XMLHttpRequest();
         const FD = new FormData(form);
         XHR.addEventListener("load", function (event) {
+            console.log(this.response);
+            console.log(this.response.type);
             if (server_action = "OPEN_LOG"){
                 // $("#btn1").attr("disabled", true);
                 // $("#btn2").attr("disabled", false);
@@ -184,12 +185,12 @@ window.addEventListener("load", function () {
                     alert("Something bad happened.");
             }
         }});
-        XHR.open("POST", "http://itcisopsadmin:5004/request_log");
+        XHR.open("POST", "http://itcisopsadmin:5005/request_log");
         XHR.setRequestHeader("Access-Control-Allow-Headers", "Accept");
-        XHR.setRequestHeader("Access-Control-Allow-Origin", "http://itcisopsadmin:5004/request_log");
+        XHR.setRequestHeader("Access-Control-Allow-Origin", "http://itcisopsadmin:5005/request_log");
         XHR.responseType='blob';
         FD.append("Server_action", server_action);
-        FD.set("server_name", server_name);
+        FD.set("component", $('#component').find('option:selected').text());
         XHR.send(FD);
     }
     function logActions(server_action, user_action) {
@@ -206,16 +207,16 @@ window.addEventListener("load", function () {
 });
 
 //Reference: https://jsfiddle.net/fwv18zo1/
-var $machine_no = $('#machine_no'),
-    $server_name = $('#server_name'),
-    $options = $server_name.find('option');
+// var $machine_no = $('#machine_no'),
+//     $component = $('#component'),
+//     $options = $component.find('option');
 
-$machine_no.on('change', function () {
-    $server_name.html($options.filter('[value="' + this.value + '"]'));
-    server_name = $server_name.find('option:selected').text();
-}).trigger('change');
+// $machine_no.on('change', function () {
+//     $component.html($options.filter('[value="' + this.value + '"]'));
+//     component = $component.find('option:selected').text();
+// }).trigger('change');
 
 
-$server_name.on('change', function () {
-    server_name = $(this).find('option:selected').text();
-});
+// $component.on('change', function () {
+//     component = $(this).find('option:selected').text();
+// });
