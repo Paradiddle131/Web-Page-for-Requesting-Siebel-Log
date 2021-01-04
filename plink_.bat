@@ -23,7 +23,7 @@ echo file_name: %file_name%
 
 IF %action%=="OPEN_LOG" (
 	echo Opening log %%5 on server: %server_name%
-	plink -hostkey %hostkey% -batch siebel@%serv_ip% -pw %servpw% "cd /home/siebel/script;./log_increase.sh '"SBL_PRO01"' crm;" "exit"
+	plink -hostkey %hostkey% -batch siebel@%serv_ip% -pw %servpw% "cd /home/siebel/script;./log_increase.sh '%server_name%' crm;" "exit"
 )
 
 IF %action%=="CLOSE_LOG" (
