@@ -112,7 +112,7 @@ def request_log():
 		run_batch(args)
 		if req_data.get('Server_action') == "REQUEST_LOG":
 			print("SENDING FILE...")
-			return send_file(glob(f"{getenv('path_file_to_upload')}\{time_log}*.zip")[-1], attachment_filename="your_log.zip")
+			return send_file(glob(path.join(getenv('path_file_to_upload'), req_data.get('keyword')+".zip"))[-1], attachment_filename="your_log.zip")
 		elif req_data.get('Server_action') == "OPEN_LOG":
 			try:
 				open_machines.append(servers[int(req_data.get("machine_no"))-1]['hostname'])
