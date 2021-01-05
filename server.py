@@ -81,6 +81,14 @@ def get_request_attribute(req_data, attribute_name):
 
 @app.route("/request_log", methods=["POST"])
 def request_log():
+    '''print("EXIT() DUE TO DEBUG PURPOSES")
+    time.sleep(20)
+    return app.response_class(
+            response=dumps({"response_message": "Success!"}),
+            status=200,
+            mimetype='application/json'
+        )
+    exit()'''
     response_status = 200
     try:
         req_data = request.form if len(request.form) != 0 else request.json

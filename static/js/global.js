@@ -19,6 +19,33 @@
     fetchTable();
 })(jQuery);
 
+var $status = $('.status');
+var $loading_ring = $('.loading_ring');
+var $done = $('.done');
+var processing = false;
+
+$status.on('processing done', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+})
+
+function start_processing_animation() {
+    console.log("starting animation...");
+    if (!processing) {
+        processing = true;
+        // $button.html('Uploading...');
+        // $status.fadeOut();
+        $done.removeClass('active');
+        $loading_ring.addClass('active');
+    }
+}
+
+function stop_processing_animation() {
+    console.log("stopping animation...");
+    $loading_ring.removeClass('active');
+    $done.addClass('active');
+    processing = false;
+}
 
 function fetchTable(doPush=false){
     var loadUrl = "static/data/active_servers.json";
@@ -113,6 +140,7 @@ function getTime() {
 window.addEventListener("load", function () {
     const form = document.getElementById("myForm");
     let server_action;
+    let missing_value;
     var date_log;
     btn1.onclick = function (e) {
         server_action = "OPEN_LOG";
@@ -125,6 +153,15 @@ window.addEventListener("load", function () {
     }
 
     btn3.onclick = function (e) {
+        if ($("#machine_no")[0].value === "not_selected") {
+            missing_value = true;
+            alert("Please select a machine.");
+            throw new Error("No machine is selected.");
+        } else if ($("#keyword")[0].value === "") {
+            missing_value = true;
+            alert("Please enter a keyword.");
+            throw new Error("No keyword is given.");
+        }
         server_action = "REQUEST_LOG";
         date_log = getTime();
     }
@@ -136,6 +173,11 @@ window.addEventListener("load", function () {
     }
 
     form.addEventListener("submit", function (event) {
+        // console.log(missing_value);
+        // console.log(missing_value != null);
+        // if (missing_value != null) {
+        //     throw new Error("There is missing value in the form.");
+        // }
         event.preventDefault();
         sendData();
     });
@@ -143,15 +185,9 @@ window.addEventListener("load", function () {
         const XHR = new XMLHttpRequest();
         const FD = new FormData(form);
         XHR.addEventListener("load", function (event) {
+            stop_processing_animation();
             console.log(this.response);
             console.log(this.response.type);
-            if (server_action = "OPEN_LOG"){
-                // $("#btn1").attr("disabled", true);
-                // $("#btn2").attr("disabled", false);
-            } else if (server_action = "CLOSE_LOG"){
-                // $("#btn1").attr("disabled", false);
-                // $("#btn2").attr("disabled", true);
-            }
             if (this.response.type === "application/x-zip-compressed"){
                 var keyword = document.getElementsByClassName("input--style-1")[0].value;
                 const blob = new Blob([this.response], { type: 'application/x-zip-compressed' });
@@ -169,28 +205,31 @@ window.addEventListener("load", function () {
             } else if (this.response.type === "application/json"){ 
                 var response = blobToString(this.response);
                 var responseJSON = JSON.parse(response);
-                if (responseJSON["response_message"].match("Log level increased.")) {
+                var response_message = responseJSON["response_message"]
+                if (response_message === "Log level increased.") {
                     updateActiveServers("NewAddedEmail@vodafone.com", $("#machine_no option:selected").text(), date_log, "Active", true);
                     fetchTable(false);
                     alert("Log level increased.");
                     logActions("LOG_USER_ACTIVITY", "Increase");
-                } else if (responseJSON["response_message"].match("Log level decreased.")) {
+                } else if (response_message === "Log level decreased.") {
                     updateActiveServers("-", $("#machine_no option:selected").text(), "-", "Not Active", true);
                     fetchTable(false);
                     alert("Log level decreased.");
                     logActions("LOG_USER_ACTIVITY", "Decrease");
-                } else if (responseJSON["response_message"].match("Success!")) {
+                } else if (response_message === "Success!") {
                     console.log("Success!");
                 } else {
                     alert("Something bad happened.");
             }
-        }});
+        }
+    });
         XHR.open("POST", "http://itcisopsadmin:5005/request_log");
         XHR.setRequestHeader("Access-Control-Allow-Headers", "Accept");
         XHR.setRequestHeader("Access-Control-Allow-Origin", "http://itcisopsadmin:5005/request_log");
         XHR.responseType='blob';
         FD.append("Server_action", server_action);
         FD.set("component", $('#component').find('option:selected').text());
+        start_processing_animation();
         XHR.send(FD);
     }
     function logActions(server_action, user_action) {

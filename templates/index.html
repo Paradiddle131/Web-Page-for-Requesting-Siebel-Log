@@ -38,14 +38,14 @@
                     <h2 class="title">Request Info</h2>
                     <form method="POST" id="myForm">
                         <div class="input-group">
-                            <input class="input--style-1" type="text" placeholder="Keyword to search for" name="keyword" id="txtKeyword">
+                            <input id="keyword" class="input--style-1" type="text" placeholder="Keyword to search for" name="keyword">
                         </div>
                         <div class="row row-space">
                             <div class="col-2">
                                 <div class="input-group">
                                     <div class="rs-select2 js-select-simple select">
                                         <select id="machine_no" name="machine_no">
-                                            <option value="0" disabled="disabled" selected="selected">Select Machine</option>
+                                            <option value="not_selected" disabled="disabled" selected="selected">Select Machine</option>
                                             <option value="1">sblapp01</option>
                                             <option value="2">sblapp02</option>
                                             <option value="3">sblapp03</option>
@@ -69,7 +69,7 @@
                                 <div class="input-group">
                                     <div class="rs-select2 js-select-simple select">
                                         <select name="component" id="component">
-                                            <option disabled="disabled" selected="selected">Select Component</option>
+                                            <option value="not_selected" disabled="disabled" selected="selected">Select Component</option>
                                             <option value="crm">callcenter_enu</option>
                                             <option value="prm">prm_enu</option>
                                         </select>
@@ -84,12 +84,21 @@
                         </div>
                             <div class="p-t-20">
                                 <button class="btn btn--radius btn--green" type="submit" id="btn1"><i class="fas fa-unlock"></i> Open Logs</button>
+                                <span class="status">
+                                    <div class="loading_ring"><div></div><div></div><div></div><div></div></div>
+                                </span>
                             </div>
                             <div class="p-t-20">
                                 <button class="btn btn--radius btn--green" type="submit" id="btn2"><i class="fas fa-lock"></i> Close Logs</button>
+                                <span class="status">
+                                    <div class="loading_ring"><div></div><div></div><div></div><div></div></div>
+                                </span>
                             </div>
                             <div class="p-t-20">
                                 <button class="btn btn--radius btn--green" type="submit" id="btn3"><i class="fas fa-download"></i> Request Log</button>
+                                <span class="status">
+                                    <div class="loading_ring"><div></div><div></div><div></div><div></div></div>
+                                </span>
                             </div>
                     </form>
                 </div>
@@ -99,20 +108,7 @@
                 <div class="record_wrapper">
                     <button class="btn btn--radius btn--green btn--reload" type="submit" id="btn_reload"><i class="fas fa-sync-alt"> Reload</i></button>
                     <div class="record_table" id="record_table">
-                        <!-- <div class="record_row header blue">
-                        <div class="record_cell">
-                            Machine
-                        </div>
-                        <div class="record_cell">
-                            Email
-                        </div>
-                        <div class="record_cell">
-                            Date Activated
-                        </div>
-                        <div class="record_cell">
-                            Status
-                        </div>
-                        </div> -->
+                        
                     </div>
                     </div>
                 </div>
