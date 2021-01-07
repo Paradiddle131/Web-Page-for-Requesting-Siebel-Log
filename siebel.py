@@ -76,7 +76,10 @@ class Siebel:
         if action != Change_log_action.INCREASE and action != Change_log_action.DECREASE:
             print("Wrong argument passed:", action)
             return None
-        batcmd = f'''plink -hostkey "{self.args["winscp_hostkey"]}" -batch siebel@{self.args["serv_ip"]} -pw {self.args["servpw"]} "cd {getenv("path_scripts")};./log_{action}.sh {self.args["server_name"]} {self.args["component"]};"'''
+        if self.isADM:
+            batcmd = f'''plink -batch siebel@{self.args["serv_ip"]} -pw {self.args["servpw"]} "cd {getenv("path_scripts")};./log_{action}.sh {self.args["server_name"]} {self.args["component"]};"'''
+        else:
+            batcmd = f'''plink -hostkey "{self.args["winscp_hostkey"]}" -batch siebel@{self.args["serv_ip"]} -pw {self.args["servpw"]} "cd {getenv("path_scripts")};./log_{action}.sh {self.args["server_name"]} {self.args["component"]};"'''
         print("@@ LOG CHANGE LEVEL COMMAND @@\n\n")
         print(batcmd)
         output = subprocess.check_output(batcmd, shell=True, text=True)
@@ -88,14 +91,18 @@ class Siebel:
 
 
     def list_log_level(self):
-        batcmd = f'''plink -hostkey "{self.args["winscp_hostkey"]}" -batch siebel@{self.args["serv_ip"]} -pw {self.args["servpw"]} "cd {getenv("path_scripts")};./log_list.sh {self.args["server_name"]} {self.args["component"]};"'''
+        if self.isADM:
+            batcmd = f'''plink -batch siebel@{self.args["serv_ip"]} -pw {self.args["servpw"]} "cd {getenv("path_scripts")};./log_list.sh {self.args["server_name"]} {self.args["component"]};"'''
+        else:
+            batcmd = f'''plink -hostkey "{self.args["winscp_hostkey"]}" -batch siebel@{self.args["serv_ip"]} -pw {self.args["servpw"]} "cd {getenv("path_scripts")};./log_list.sh {self.args["server_name"]} {self.args["component"]};"'''
         print("@@ LOG LIST LEVEL COMMAND @@\n\n")
         print(batcmd)
         output = subprocess.check_output(batcmd, shell=True, text=True).split()
         print("@@ LOG LIST LEVEL OUTPUT @@\n\n")
         print(output)
         print("There are", output.count("0"), "amount of zeroes.")
-        return output.count("0")
+        print("There are", output.count("5"), "amount of fives.")
+        return output
 
 
     def request_log(self):
@@ -104,7 +111,10 @@ class Siebel:
         assert files, "Couldn't find any files."
         files_str = ""
         for _file in files:
-            batcmd = f'''"C:\\Program Files (x86)\\WinSCP\\WinSCP.exe" /command "option batch on" "option confirm off" "open -hostkey=""{self.args["winscp_hostkey"]}"" siebel:"{self.args["servpw"]}"@"{self.args["serv_ip"]}"" "get {self.args["path_unix_log"]}/{_file} E:\\LogCopyAutomation\\{_file}" "/log={self.args["path_log"]}\\LogCopy_{_file}"'''
+            if self.isADM:
+                batcmd = f'''"C:\\Program Files (x86)\\WinSCP\\WinSCP.exe" /command "option batch on" "option confirm off" "open siebel:"{self.args["servpw"]}"@"{self.args["serv_ip"]}"" "get {self.args["path_unix_log"]}/{_file} E:\\LogCopyAutomation\\{_file}" "/log={self.args["path_log"]}\\LogCopy_{_file}"'''
+            else:
+                batcmd = f'''"C:\\Program Files (x86)\\WinSCP\\WinSCP.exe" /command "option batch on" "option confirm off" "open -hostkey=""{self.args["winscp_hostkey"]}"" siebel:"{self.args["servpw"]}"@"{self.args["serv_ip"]}"" "get {self.args["path_unix_log"]}/{_file} E:\\LogCopyAutomation\\{_file}" "/log={self.args["path_log"]}\\LogCopy_{_file}"'''
             print("@@ WINSCP OUTPUT @@\n\n")
             subprocess.check_output(batcmd, shell=True, text=True)
             files_str += _file + " "

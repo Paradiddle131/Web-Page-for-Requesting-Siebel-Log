@@ -18,8 +18,7 @@ def hello():
 def open_log():
     try:
         req_data = request.form if len(request.form) != 0 else request.json
-        isAdm = "isTest" in req_data
-        siebel = Siebel(req_data, isAdm)
+        siebel = Siebel(req_data, req_data.get("isAdm"))
         siebel.change_log_level(Change_log_action.INCREASE)
         response_message = "Log level increased."
         response_status = 200
@@ -38,8 +37,9 @@ def open_log():
 def close_log():
     try:
         req_data = request.form if len(request.form) != 0 else request.json
-        isAdm = "isTest" in req_data
-        siebel = Siebel(req_data, isAdm)
+        print("@@ REQ_DATA:\n\n")
+        print(req_data)
+        siebel = Siebel(req_data, req_data.get("isAdm"))
         siebel.change_log_level(Change_log_action.DECREASE)
         response_message = "Log level decreased."
         response_status = 200
@@ -57,8 +57,7 @@ def close_log():
 @app.route("/request_log", methods=["POST"])
 def request_log():
     req_data = request.form if len(request.form) != 0 else request.json
-    isAdm = "isTest" in req_data
-    siebel = Siebel(req_data, isAdm)
+    siebel = Siebel(req_data, req_data.get("isAdm"))
     return send_file(siebel.request_log(), mimetype="application/x-zip-compressed", as_attachment=True)
 
 

@@ -229,6 +229,7 @@ window.addEventListener("load", function () {
         XHR.setRequestHeader("Access-Control-Allow-Headers", "Accept");
         XHR.setRequestHeader("Access-Control-Allow-Origin", "http://itcisopsadmin:5005/" + server_action);
         XHR.responseType='blob';
+        FD.append("isAdm", $("#isTest").is(":checked"));
         FD.append("Server_action", server_action);
         FD.set("component", $('#component').find('option:selected').text());
         start_processing_animation();
