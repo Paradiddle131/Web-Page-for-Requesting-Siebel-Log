@@ -59,9 +59,7 @@ def request_log():
     req_data = request.form if len(request.form) != 0 else request.json
     isAdm = "isTest" in req_data
     siebel = Siebel(req_data, isAdm)
-    print("@@ Siebel Args:\n\n")
-    print(siebel.args)
-    return send_file(siebel.request_log())
+    return send_file(siebel.request_log(), mimetype="application/x-zip-compressed", as_attachment=True)
 
 
 if __name__ == "__main__":

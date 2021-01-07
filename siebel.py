@@ -58,9 +58,9 @@ class Siebel:
         self.args.update(
             {
                 "path_log": getenv("path_log"),
-                "Server_action": req_data.get("Server_action"),
-                "keyword": req_data.get("keyword"),
-                "machine_no": req_data.get("machine_no"),
+                "Server_action": self.req_data.get("Server_action"),
+                "keyword": self.req_data.get("keyword"),
+                "machine_no": self.req_data.get("machine_no"),
                 "component_name": self.get_request_attribute("component_name"),
                 "component": self.get_request_attribute("component"),
             }
@@ -115,7 +115,4 @@ class Siebel:
         for _file in files:
             subprocess.check_output(f"del {_file}", shell=True, text=True)
         chdir(path_project)
-        # self.response.update({"type": Response_type.FILE,
-        #                       "file": glob(path.join(getenv("path_file_to_upload"), self.req_data.get("keyword") + ".zip"))[-1]})
-        # return self.response
         return glob(path.join(getenv("path_file_to_upload"), self.req_data.get("keyword") + ".zip"))[-1]

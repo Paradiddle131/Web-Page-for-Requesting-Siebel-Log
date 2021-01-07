@@ -65,9 +65,9 @@ function fetchTable(doPush=false){
                 "Status" +
             "</div>" +
         "</div>");
-        $.each(data, function (key, value) { 
-            updateActiveServers(value.Email, key, value.Date_activated, value.Status, doPush);
-        });
+        // $.each(data, function (key, value) {
+        //     updateActiveServers(value.Email, key, value.Date_activated, value.Status, doPush);
+        // });
     });
 }
 
@@ -201,21 +201,23 @@ window.addEventListener("load", function () {
                 a.click();
                 window.URL.revokeObjectURL(url);
                 a.remove();
-                logActions("LOG_USER_ACTIVITY", "Request");
+                // logActions("LOG_USER_ACTIVITY", "Request");
             } else if (this.response.type === "application/json"){ 
                 var response = blobToString(this.response);
                 var responseJSON = JSON.parse(response);
+                console.log(responseJSON)
                 var response_message = responseJSON["response_message"]
+                console.log(response_message)
                 if (response_message === "Log level increased.") {
-                    updateActiveServers("NewAddedEmail@vodafone.com", $("#machine_no option:selected").text(), date_log, "Active", true);
+                    // updateActiveServers("NewAddedEmail@vodafone.com", $("#machine_no option:selected").text(), date_log, "Active", true);
                     fetchTable(false);
                     alert("Log level increased.");
-                    logActions("LOG_USER_ACTIVITY", "Increase");
+                    // logActions("LOG_USER_ACTIVITY", "Increase");
                 } else if (response_message === "Log level decreased.") {
-                    updateActiveServers("-", $("#machine_no option:selected").text(), "-", "Not Active", true);
+                    // updateActiveServers("-", $("#machine_no option:selected").text(), "-", "Not Active", true);
                     fetchTable(false);
                     alert("Log level decreased.");
-                    logActions("LOG_USER_ACTIVITY", "Decrease");
+                    // logActions("LOG_USER_ACTIVITY", "Decrease");
                 } else if (response_message === "Success!") {
                     console.log("Success!");
                 } else {
