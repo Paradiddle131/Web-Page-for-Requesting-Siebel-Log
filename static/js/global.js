@@ -26,7 +26,7 @@ var processing = false;
 
 $status.on('processing done', function(e) {
     e.preventDefault();
-    e.stopPropagation();
+	e.stopPropagation();
 })
 
 function start_processing_animation() {
@@ -143,12 +143,12 @@ window.addEventListener("load", function () {
     let missing_value;
     var date_log;
     btn1.onclick = function (e) {
-        server_action = "OPEN_LOG";
+        server_action = "open_log";
         date_log = getTime();
     }
 
     btn2.onclick = function (e) {
-        server_action = "CLOSE_LOG";
+        server_action = "close_log";
         date_log = getTime();
     }
 
@@ -162,7 +162,7 @@ window.addEventListener("load", function () {
             alert("Please enter a keyword.");
             throw new Error("No keyword is given.");
         }
-        server_action = "REQUEST_LOG";
+        server_action = "request_log";
         date_log = getTime();
     }
 
@@ -223,9 +223,9 @@ window.addEventListener("load", function () {
             }
         }
     });
-        XHR.open("POST", "http://itcisopsadmin:5005/request_log");
+        XHR.open("POST", "http://itcisopsadmin:5005/" + server_action);
         XHR.setRequestHeader("Access-Control-Allow-Headers", "Accept");
-        XHR.setRequestHeader("Access-Control-Allow-Origin", "http://itcisopsadmin:5005/request_log");
+        XHR.setRequestHeader("Access-Control-Allow-Origin", "http://itcisopsadmin:5005/" + server_action);
         XHR.responseType='blob';
         FD.append("Server_action", server_action);
         FD.set("component", $('#component').find('option:selected').text());
