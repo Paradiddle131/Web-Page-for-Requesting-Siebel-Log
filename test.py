@@ -2,14 +2,19 @@ import json
 import unittest
 
 from flask import request, Flask
+from parameterized import parameterized
 
 from siebel import Siebel, Change_log_action
 
 app = Flask(__name__)
+machines_list = [str(x) for x in range(1, 15)]
 
 class Request:
     def __init__(self, request_dict):
         self.request_mock = request_dict
+
+    def __getitem__(self, attribute_name):
+        return self.request_mock[attribute_name]
 
     def get_data(self):
         return json.dumps(self.request_mock)
@@ -17,39 +22,49 @@ class Request:
     def set_data(self, key, value):
         self.request_mock.update({key: value})
 
+
+def setup(machine_no):
+    request_obj.set_data("machine_no", machine_no)
+    with app.test_request_context('/', json=request_obj.get_data()):
+        siebel = Siebel(req_data=json.loads(request.json), isADM=request_obj["isAdm"])
+    keyword = siebel.find_keyword()
+    request_obj.set_data("keyword", keyword)
+    request_obj.set_data("component", "callcenter_enu" if int(machine_no) <= 7 else "prm_enu")
+    return siebel, keyword
+
+
+def find_keyword(siebel):
+    return siebel.find_keyword()
+
+
+def change_log_level(siebel, change_log_action):
+    siebel.change_log_level(change_log_action)
+    return siebel.list_log_level().count('5' if change_log_action == Change_log_action.INCREASE else '0')
+
+
+def request_log(siebel):
+    return siebel.request_log()
+
+
 class TestServer(unittest.TestCase):
-    def test_a_increase_log_level_should_success(self):
-        '''Testing if log level increased to 5...'''
-        request_obj.set_data("Server_action", "open_log")
-        with app.test_request_context('/open_log', json=request_obj.get_data()):
-            data = json.loads(request.json)
-            print(data)
-        siebel = Siebel(req_data=data, isADM=False)
-        siebel.change_log_level(Change_log_action.INCREASE)
-        count = siebel.list_log_level().count("5")
-        print(count)
-        self.assertGreaterEqual(count, 180, msg=f"Error increasing log level on machine pro{data['machine_no']}")
+    def setUp(self):
+        pass
 
-    def test_b_decrease_log_level_should_success(self):
-        '''Testing if log level decreased to 0...'''
-        request_obj.set_data("Server_action", "close_log")
-        with app.test_request_context('/close_logs', json=request_obj.get_data()):
-            data = json.loads(request.json)
-            print(data)
-        siebel = Siebel(req_data=data, isADM=False)
-        siebel.change_log_level(Change_log_action.DECREASE)
-        count = siebel.list_log_level().count("0")
-        print(count)
-        self.assertGreaterEqual(count, 180, msg=f"Error decreasing log level on machine pro{data['machine_no']}")
+    def tearDown(self):
+        pass
 
-    def test_c_request_log_should_success(self):
-        with app.test_request_context('/close_logs', json=request_obj.get_data()):
-            data = json.loads(request.json)
-            print(data)
-        siebel = Siebel(req_data=data, isADM=False)
-        self.assertIsNotNone(siebel.request_log())
+    @parameterized.expand(machines_list)
+    def test_all_actions(self, machine_no):
+        siebel, keyword = setup(machine_no)
+        self.assertIsNotNone(keyword, "Error finding keyword")
+        count = change_log_level(siebel, Change_log_action.INCREASE)
+        self.assertGreaterEqual(count, 180, msg=f"Error {Change_log_action.INCREASE[:-1]}ing log level on machine pro{machine_no}.")
+        count = change_log_level(siebel, Change_log_action.DECREASE)
+        self.assertGreaterEqual(count, 180, msg=f"Error {Change_log_action.DECREASE[:-1]}ing log level on machine pro{machine_no}.")
+        file_name = request_log(siebel)
+        self.assertIsNotNone(file_name, msg=f"Error requesting log file with keyword: {keyword} on machine pro{machine_no}.")
 
 
 if __name__ == '__main__':
-    request_obj = Request({"keyword": "404751504", "machine_no": "3", "component": "callcenter_enu"})
+    request_obj = Request({"isAdm": False})
     unittest.main()
