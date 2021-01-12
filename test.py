@@ -25,8 +25,9 @@ class Request:
 
 def setup(machine_no):
     request_obj.set_data("machine_no", machine_no)
+    request_obj.set_data("isAdm", False)
     with app.test_request_context('/', json=request_obj.get_data()):
-        siebel = Siebel(req_data=json.loads(request.json), isADM=request_obj["isAdm"])
+        siebel = Siebel(req_data=json.loads(request.json))
     keyword = siebel.find_keyword()
     request_obj.set_data("keyword", keyword)
     request_obj.set_data("component", "callcenter_enu" if int(machine_no) <= 7 else "prm_enu")
