@@ -22,7 +22,7 @@ def open_log():
         print(req_data)
         siebel = Siebel(req_data)
         siebel.change_log_level(Change_log_action.INCREASE)
-        response_message = "Log level increased."
+        response_message = {"response_message": "Log level increased."}
         response_status = 200
     except:
         error("Error occurred:", exc_info=True)
@@ -43,7 +43,7 @@ def close_log():
         print(req_data)
         siebel = Siebel(req_data)
         siebel.change_log_level(Change_log_action.DECREASE)
-        response_message = "Log level decreased."
+        response_message = {"response_message": "Log level decreased."}
         response_status = 200
     except:
         error("Error occurred:", exc_info=True)

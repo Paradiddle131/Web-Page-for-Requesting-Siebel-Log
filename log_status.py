@@ -21,9 +21,9 @@ def update_log_level_status():
             with open("static/data/servers.json") as f:
                 servers = load(f)
             last_update = datetime.fromtimestamp(int(servers[int(machine_no) - 1]["log_level_last_updated"].split('.')[0]))
-            time_difference = divmod((datetime.now() - last_update).seconds, 60)[1]
+            time_difference = divmod((datetime.now() - last_update).seconds, 60)[0]
             if servers[int(machine_no) - 1]["log_level_status"] == '5' and \
-                time_difference >= 0:
+                time_difference >= 30:
                 with app.test_request_context('/', json=dumps({"machine_no": machine_no, "isAdm": False, "Server_action": "close_log"})):
                     siebel = Siebel(req_data=loads(request.json))
                 siebel.change_log_level(Change_log_action.DECREASE)
