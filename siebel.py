@@ -23,6 +23,12 @@ class Change_log_action:
     INCREASE = "increase"
     DECREASE = "decrease"
 
+
+def return_response_message(response_message):
+    return {"response_message": response_message,
+            "status": 500}
+
+
 class Siebel:
     load_dotenv("config.env")
     def __init__(self, req_data):
@@ -33,10 +39,6 @@ class Siebel:
         self.req_data = req_data
         with open("static/data/servers.json", "r") as f:
             self.servers = load(f)
-        self.response = {"type": Response_type,
-                         "response": {"response_message": ""},
-                         "status": 0,
-                         "mimetype": ""}
         if self.isADM:
             self.args = {
                 "serv_ip": getenv("serv_ip"),
@@ -120,6 +122,8 @@ class Siebel:
             print("@@ LOG CHANGE LEVEL COMMAND @@\n\n")
             print(batcmd)
             output = subprocess.check_output(batcmd, shell=True, text=True)
+            if not output:
+                return return_response_message("Error changing the log level.")
             print("@@ LOG CHANGE LEVEL OUTPUT @@\n\n")
             print(output)
             with open("static/data/servers.json", "w+") as f:
@@ -127,8 +131,7 @@ class Siebel:
                 self.servers[int(self.req_data.get("machine_no")) - 1].update({"log_level_last_updated": str(time())})
                 dump(self.servers, f)
             return {"response_message": f"Log level {action}d.",
-                    "status": 200,
-                    "mimetype": "application/json"}
+                    "status": 200}
         except:
             error(f"Error changing log level on machine #{self.req_data.get('machine_no')}.", exc_info=True)
 
@@ -150,12 +153,11 @@ class Siebel:
         except:
             error(f"Error listing log level on machine #{self.req_data.get('machine_no')}.", exc_info=True)
 
-
     def request_log(self):
         try:
-            self.change_log_level(Change_log_action.DECREASE)
             files = self.find_file()
-            assert files, "Couldn't find any files."
+            if not files:
+                return return_response_message("Couldn't find any files.")
             files_str = ""
             for _file in files:
                 if self.isADM:

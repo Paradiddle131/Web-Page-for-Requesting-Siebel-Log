@@ -210,9 +210,7 @@ window.addEventListener("load", function () {
                 // logActions("LOG_USER_ACTIVITY", "Request");
             } else if (this.response.type === "application/json"){ 
                 var response = blobToString(this.response);
-                var responseJSON = JSON.parse(response);
-                console.log(responseJSON)
-                var response_message = responseJSON["response_message"]
+                var response_message = JSON.parse(response);
                 console.log(response_message)
                 if (response_message === "Log level increased.") {
                     // updateActiveServers("NewAddedEmail@vodafone.com", $("#machine_no option:selected").text(), date_log, "Active", true);
@@ -226,6 +224,10 @@ window.addEventListener("load", function () {
                     // logActions("LOG_USER_ACTIVITY", "Decrease");
                 } else if (response_message === "Success!") {
                     console.log("Success!");
+                } else if (response_message === "Couldn't find any files.") {
+                    alert("Couldn't find any log containing the given keyword. Please try another keyword.");
+                } else if (response_message === "Error changing the log level.") {
+                    alert("Error changing the log level. Please contact the administrator.");
                 } else {
                     alert("Something bad happened.");
             }
