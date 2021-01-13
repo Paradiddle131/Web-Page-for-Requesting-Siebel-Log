@@ -134,15 +134,22 @@ function getTime() {
     return date_log.substring(0, date_log.length-21);
 }
 
+function checkEmptyFields() {
+    if ($("#machine_no")[0].value === "not_selected") {
+            alert("Please select a machine.");
+            throw new Error("No machine is selected.");
+        }
+}
+
 
 window.addEventListener("load", function () {
     const form = document.getElementById("myForm");
-    let server_action;
-    let missing_value;
+    let server_action = "";
     var date_log;
     var loading_ring;
     var done;
     btn1.onclick = function (e) {
+        checkEmptyFields();
         server_action = "open_log";
         date_log = getTime();
         loading_ring = $('#loading_ring_1')
@@ -150,6 +157,7 @@ window.addEventListener("load", function () {
     }
 
     btn2.onclick = function (e) {
+        checkEmptyFields();
         server_action = "close_log";
         date_log = getTime();
         loading_ring = $('#loading_ring_2')
@@ -157,12 +165,8 @@ window.addEventListener("load", function () {
     }
 
     btn3.onclick = function (e) {
-        if ($("#machine_no")[0].value === "not_selected") {
-            missing_value = true;
-            alert("Please select a machine.");
-            throw new Error("No machine is selected.");
-        } else if ($("#keyword")[0].value === "") {
-            missing_value = true;
+        checkEmptyFields();
+        if ($("#keyword")[0].value === "") {
             alert("Please enter a keyword.");
             throw new Error("No keyword is given.");
         }
@@ -179,11 +183,6 @@ window.addEventListener("load", function () {
     }
 
     form.addEventListener("submit", function (event) {
-        // console.log(missing_value);
-        // console.log(missing_value != null);
-        // if (missing_value != null) {
-        //     throw new Error("There is missing value in the form.");
-        // }
         event.preventDefault();
         sendData();
     });
@@ -238,10 +237,10 @@ window.addEventListener("load", function () {
         XHR.setRequestHeader("Access-Control-Allow-Origin", "http://itcisopsadmin:5005/" + server_action);
         XHR.responseType='blob';
         FD.append("isAdm", $("#isTest").is(":checked"));
-        FD.append("Server_action", server_action);
         FD.set("component", $('#component').find('option:selected').text());
         start_processing_animation(loading_ring, done);
         XHR.send(FD);
+        server_action = "";
     }
     function logActions(server_action, user_action) {
         var data = {
