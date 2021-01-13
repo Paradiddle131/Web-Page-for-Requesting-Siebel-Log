@@ -1,6 +1,7 @@
 from json import dumps
 from logging import error
-from os import getenv
+from os import getenv, getcwd
+from subprocess import Popen
 
 from flask import Flask, request, send_file, render_template
 
@@ -63,4 +64,5 @@ def request_log():
 
 
 if __name__ == "__main__":
+    Popen("python log_status.py", cwd=getcwd(), shell=True)
     app.run(host=getenv("host_address"), port=5005, debug=False)
