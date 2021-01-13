@@ -20,8 +20,6 @@
 })(jQuery);
 
 var $status = $('.status');
-var $loading_ring = $('.loading_ring');
-var $done = $('.done');
 var processing = false;
 
 $status.on('processing done', function(e) {
@@ -29,21 +27,21 @@ $status.on('processing done', function(e) {
 	e.stopPropagation();
 })
 
-function start_processing_animation() {
+function start_processing_animation(loading_ring, done) {
     console.log("starting animation...");
     if (!processing) {
         processing = true;
         // $button.html('Uploading...');
         // $status.fadeOut();
-        $done.removeClass('active');
-        $loading_ring.addClass('active');
+        done.removeClass('active');
+        loading_ring.addClass('active');
     }
 }
 
-function stop_processing_animation() {
+function stop_processing_animation(loading_ring, done) {
     console.log("stopping animation...");
-    $loading_ring.removeClass('active');
-    $done.addClass('active');
+    loading_ring.removeClass('active');
+    done.addClass('active');
     processing = false;
 }
 
@@ -142,14 +140,20 @@ window.addEventListener("load", function () {
     let server_action;
     let missing_value;
     var date_log;
+    var loading_ring;
+    var done;
     btn1.onclick = function (e) {
         server_action = "open_log";
         date_log = getTime();
+        loading_ring = $('#loading_ring_1')
+        done = $('#done_1')
     }
 
     btn2.onclick = function (e) {
         server_action = "close_log";
         date_log = getTime();
+        loading_ring = $('#loading_ring_2')
+        done = $('#done_2')
     }
 
     btn3.onclick = function (e) {
@@ -164,6 +168,8 @@ window.addEventListener("load", function () {
         }
         server_action = "request_log";
         date_log = getTime();
+        loading_ring = $('#loading_ring_3')
+        done = $('#done_3')
     }
 
     btn_reload.onclick = function (e) {
@@ -185,7 +191,7 @@ window.addEventListener("load", function () {
         const XHR = new XMLHttpRequest();
         const FD = new FormData(form);
         XHR.addEventListener("load", function (event) {
-            stop_processing_animation();
+            stop_processing_animation(loading_ring, done);
             console.log(this.response);
             console.log(this.response.type);
             if (this.response.type === "application/x-zip-compressed"){
@@ -232,7 +238,7 @@ window.addEventListener("load", function () {
         FD.append("isAdm", $("#isTest").is(":checked"));
         FD.append("Server_action", server_action);
         FD.set("component", $('#component').find('option:selected').text());
-        start_processing_animation();
+        start_processing_animation(loading_ring, done);
         XHR.send(FD);
     }
     function logActions(server_action, user_action) {
