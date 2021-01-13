@@ -23,6 +23,9 @@ def update_log_level_status():
             last_update = datetime.fromtimestamp(int(servers[int(machine_no) - 1]["log_level_last_updated"].split('.')[0]))
             time_difference = divmod((datetime.now() - last_update).seconds, 60)[0]
             if servers[int(machine_no) - 1]["log_level_status"] == '5' and \
+                time_difference < 30:
+                info(f"Skipping. Log level has been 5 on machine #{machine_no} for {time_difference} minutes.")
+            elif servers[int(machine_no) - 1]["log_level_status"] == '5' and \
                 time_difference >= 30:
                 with app.test_request_context('/', json=dumps({"machine_no": machine_no, "isAdm": False, "Server_action": "close_log"})):
                     siebel = Siebel(req_data=loads(request.json))

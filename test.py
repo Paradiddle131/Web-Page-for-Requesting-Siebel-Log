@@ -1,5 +1,6 @@
 import json
 import unittest
+from logging import FileHandler, basicConfig, DEBUG
 
 from flask import request, Flask
 from parameterized import parameterized
@@ -30,7 +31,10 @@ def setup(machine_no):
         siebel = Siebel(req_data=json.loads(request.json))
     keyword = siebel.find_keyword()
     request_obj.set_data("keyword", keyword)
-    request_obj.set_data("component", "callcenter_enu" if int(machine_no) <= 7 else "prm_enu")
+    request_obj.set_data("component", "crm" if int(machine_no) <= 7 else "prm")
+    # Must call siebel once again to append recent parameters to siebel object
+    with app.test_request_context('/', json=request_obj.get_data()):
+        siebel = Siebel(req_data=json.loads(request.json))
     return siebel, keyword
 
 
@@ -67,5 +71,8 @@ class TestServer(unittest.TestCase):
 
 
 if __name__ == '__main__':
+    basicConfig(handlers=[FileHandler(encoding='utf-8', filename='test.log', mode='w')],
+                level=DEBUG,
+                format=u'%(levelname)s - %(name)s - %(asctime)s: %(message)s')
     request_obj = Request({"isAdm": False})
     unittest.main()
