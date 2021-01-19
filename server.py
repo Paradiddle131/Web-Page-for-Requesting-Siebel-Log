@@ -112,4 +112,4 @@ if __name__ == "__main__":
                 level=DEBUG,
                 format=u'%(levelname)s - %(name)s - %(asctime)s: %(message)s')
     Popen("python log_status.py", cwd=getcwd(), shell=True)
-    app.run(host=getenv("host_address"), port=5005, debug=False)
+    app.run(host=getenv("host_address"), port=getenv("host_port"), debug=False)
