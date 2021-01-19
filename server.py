@@ -1,4 +1,4 @@
-from json import dumps
+from json import dump, dumps, load
 from logging import FileHandler, basicConfig, error, DEBUG, debug
 from os import getenv, getcwd
 from subprocess import Popen
@@ -68,8 +68,41 @@ def request_log():
         return send_file(file_name, mimetype="application/x-zip-compressed", as_attachment=True)
     else:
         return app.response_class(
-        response=dumps(file_name["response_message"]),
-        status=file_name["status"],
+            response=dumps(file_name["response_message"]),
+            status=file_name["status"],
+            mimetype='application/json'
+        )
+
+
+@app.route("/update_servers", methods=["POST"])
+def update_servers():
+    req_data = request.form if len(request.form) != 0 else request.json
+    debug(req_data)
+    machine_no = req_data.get("machine_no")
+    log_level_last_updated = req_data.get("log_level_last_updated")
+    log_level_status = req_data.get("log_level_status")
+    with open("static/data/servers.json") as f:
+        data = load(f)
+    with open("static/data/servers.json", "w+") as f:
+        data[int(machine_no) - 1].update({"log_level_status": log_level_status})
+        data[int(machine_no) - 1].update({"log_level_last_updated": log_level_last_updated})
+        dump(data, f)
+    debug(f"servers.json has been updated on machine no# {machine_no}.")
+    return app.response_class(
+        response=dumps({"response_message": "Success!"}),
+        status=200,
+        mimetype='application/json'
+    )
+
+
+@app.route("/get_servers", methods=["GET"])
+def get_servers():
+    with open("static/data/servers.json") as f:
+        data = load(f)
+    debug(f"servers.json has been retrieved.")
+    return app.response_class(
+        response=dumps(data),
+        status=200,
         mimetype='application/json'
     )
 

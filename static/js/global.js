@@ -1,6 +1,5 @@
 (function ($) {
-    /*[ Select 2 Config ]
-        ===========================================================*/
+    /*[ Select 2 Config ]*/
     try {
         var selectSimple = $('.js-select-simple');
 
@@ -12,27 +11,72 @@
                 dropdownParent: selectDropdown
             });
         });
-
     } catch (err) {
         console.log(err);
     }
-    fetchTable();
 })(jQuery);
+
+$(document).ready(function () {
+    fetchTable();
+});
+
+const host_url = "http://itcisopsadmin:5005/"
+
+function fetchTable() {
+    const xhr = new XMLHttpRequest(),
+        method = "GET",
+        url = host_url + "get_servers";
+    xhr.open(method, url, true);
+    xhr.send();
+    xhr.onload = function () {
+        data = JSON.parse(xhr.responseText);
+        var record_table = $("#record_table");
+        record_table.empty();
+        record_table.append("<div class=\"record_row header blue\">" +
+            "<div class=\"record_cell\">" +
+            "Machine" +
+            "</div>" +
+            "<div class=\"record_cell\">" +
+            "Email" +
+            "</div>" +
+            "<div class=\"record_cell\">" +
+            "Last Updated" +
+            "</div>" +
+            "<div class=\"record_cell\">" +
+            "Status" +
+            "</div>" +
+            "</div>");
+        $.each(data, function (key, value) {
+            record_table.append("<div class=\"record_row\">" +
+                "<div class=\"record_cell\" data-title=\"Machine\">" +
+                "Pro " + (key + 1) +
+                "</div>" +
+                "<div class=\"record_cell\" data-title=\"Email\">" +
+                "-" +
+                "</div>" +
+                "<div class=\"record_cell\" data-title=\"Last Updated\">" +
+                new Date(parseInt(value.log_level_last_updated.toString().substring(0, 10) + value.log_level_last_updated.toString().substring(11, 14))).toLocaleString("tr-TR") +
+                "</div>" +
+                "<div class=\"record_cell\" data-title=\"Status\">" +
+                (value.log_level_status === "0" ? "Closed" : "<b>Open</b>") +
+                "</div>" +
+                "</div>");
+        })
+    }
+}
 
 var $status = $('.status');
 var processing = false;
 
-$status.on('processing done', function(e) {
+$status.on('processing done', function (e) {
     e.preventDefault();
-	e.stopPropagation();
+    e.stopPropagation();
 })
 
 function start_processing_animation(loading_ring, done) {
     console.log("starting animation...");
     if (!processing) {
         processing = true;
-        // $button.html('Uploading...');
-        // $status.fadeOut();
         done.removeClass('active');
         loading_ring.addClass('active');
     }
@@ -45,37 +89,22 @@ function stop_processing_animation(loading_ring, done) {
     processing = false;
 }
 
-function fetchTable(doPush=false){
-    var loadUrl = "static/data/active_servers.json";
-    $("#record_table").empty();
-    $.getJSON(loadUrl, function(data){ 
-        $("#record_table").append("<div class=\"record_row header blue\">" +
-            "<div class=\"record_cell\">" +
-                "Machine" +
-            "</div>" +
-            "<div class=\"record_cell\">" +
-                "Email" +
-            "</div>" +
-            "<div class=\"record_cell\">" +
-                "Date Activated" +
-            "</div>" +
-            "<div class=\"record_cell\">" +
-                "Status" +
-            "</div>" +
-        "</div>");
-        // $.each(data, function (key, value) {
-        //     updateActiveServers(value.Email, key, value.Date_activated, value.Status, doPush);
-        // });
-    });
+function updateActiveServers(email, machine_no, log_level_last_updated, log_level_status) {
+    var data = new FormData();
+    data.append('machine_no', machine_no);
+    // data.append('Email', email);
+    data.append('log_level_last_updated', log_level_last_updated);
+    data.append('log_level_status', log_level_status);
+    postXHR(data, "update_servers")
 }
 
 var btn1 = document.getElementById("btn1");
 var btn2 = document.getElementById("btn2");
 var btn3 = document.getElementById("btn3");
-var btn_reload = document.getElementById("btn_reload");
+var btn_refresh = document.getElementById("btn_refresh");
 
 
-function blobToFile(theBlob, fileName){
+function blobToFile(theBlob, fileName) {
     theBlob.lastModifiedDate = new Date();
     theBlob.name = fileName;
     return theBlob;
@@ -91,11 +120,11 @@ function blobToString(b) {
     return x.responseText;
 }
 
-function postXHR(data) {
+function postXHR(data, endpoint) {
     var http = new XMLHttpRequest();
-    http.open("POST", "http://itcisopsadmin:5005/request_log");
+    http.open("POST", host_url + endpoint);
     http.setRequestHeader("Access-Control-Allow-Headers", "Accept");
-    http.setRequestHeader("Access-Control-Allow-Origin", "http://itcisopsadmin:5005/request_log");
+    http.setRequestHeader("Access-Control-Allow-Origin", host_url + endpoint);
     if (typeof data == "string") { // assumed a stringified JSON
         http.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
     }
@@ -103,55 +132,22 @@ function postXHR(data) {
 }
 
 
-function updateActiveServers(email, machine, date, status, doPush) {
-    if (doPush) {
-        var data = new FormData();
-        data.append('Machine', machine);
-        data.append('Email', email);
-        data.append('Date_activated', date);
-        data.append('Status', status);
-        postXHR(data)
-    } else {
-        $("#record_table").append("<div class=\"record_row\">" + 
-            "<div class=\"record_cell\" data-title=\"Machine\">" + 
-                machine + 
-            "</div>" + 
-            "<div class=\"record_cell\" data-title=\"Email\">" + 
-                email + 
-            "</div>" + 
-            "<div class=\"record_cell\" data-title=\"Date Activated\">" + 
-                date + 
-            "</div>" + 
-            "<div class=\"record_cell\" data-title=\"Status\">" + 
-                status + 
-            "</div>" + 
-            "</div>");
-    }
-}
-
-function getTime() {
-    var date_log = new Date().toString();
-    return date_log.substring(0, date_log.length-21);
-}
-
 function checkEmptyFields() {
     if ($("#machine_no")[0].value === "not_selected") {
-            alert("Please select a machine.");
-            throw new Error("No machine is selected.");
-        }
+        alert("Please select a machine.");
+        throw new Error("No machine is selected.");
+    }
 }
 
 
 window.addEventListener("load", function () {
     const form = document.getElementById("myForm");
     let server_action = "";
-    var date_log;
     var loading_ring;
     var done;
     btn1.onclick = function (e) {
         checkEmptyFields();
         server_action = "open_log";
-        date_log = getTime();
         loading_ring = $('#loading_ring_1')
         done = $('#done_1')
     }
@@ -159,7 +155,6 @@ window.addEventListener("load", function () {
     btn2.onclick = function (e) {
         checkEmptyFields();
         server_action = "close_log";
-        date_log = getTime();
         loading_ring = $('#loading_ring_2')
         done = $('#done_2')
     }
@@ -171,21 +166,19 @@ window.addEventListener("load", function () {
             throw new Error("No keyword is given.");
         }
         server_action = "request_log";
-        date_log = getTime();
         loading_ring = $('#loading_ring_3')
         done = $('#done_3')
     }
 
-    btn_reload.onclick = function (e) {
-        location.reload(true);
-        // fetchTable(false);
-        // console.log("Table Reloaded.");
+    btn_refresh.onclick = function (e) {
+        fetchTable();
     }
 
     form.addEventListener("submit", function (event) {
         event.preventDefault();
         sendData();
     });
+
     function sendData() {
         const XHR = new XMLHttpRequest();
         const FD = new FormData(form);
@@ -193,34 +186,32 @@ window.addEventListener("load", function () {
             stop_processing_animation(loading_ring, done);
             console.log(this.response);
             console.log(this.response.type);
-            if (this.response.type === "application/x-zip-compressed"){
+            if (this.response.type === "application/x-zip-compressed") {
                 var keyword = document.getElementsByClassName("input--style-1")[0].value;
-                const blob = new Blob([this.response], { type: 'application/x-zip-compressed' });
-                var myFile = blobToFile(blob, keyword+".zip");
+                const blob = new Blob([this.response], {type: 'application/x-zip-compressed'});
+                var myFile = blobToFile(blob, keyword + ".zip");
                 let a = document.createElement("a");
                 a.style = "display: none";
                 document.body.appendChild(a);
                 let url = window.URL.createObjectURL(myFile);
                 a.href = url;
-                a.download = keyword+'.zip';
+                a.download = keyword + '.zip';
                 a.click();
                 window.URL.revokeObjectURL(url);
                 a.remove();
-                // logActions("LOG_USER_ACTIVITY", "Request");
-            } else if (this.response.type === "application/json"){ 
+            } else if (this.response.type === "application/json") {
                 var response = blobToString(this.response);
                 var response_message = JSON.parse(response);
                 console.log(response_message)
+                var timestamp = Date.now().toString();
                 if (response_message === "Log level increased.") {
-                    // updateActiveServers("NewAddedEmail@vodafone.com", $("#machine_no option:selected").text(), date_log, "Active", true);
-                    fetchTable(false);
+                    updateActiveServers("-", $("#machine_no option:selected").val(), timestamp.substring(0, 10) + "." + timestamp.substring(10) + "000", "5");
+                    fetchTable();
                     alert("Log level increased.");
-                    // logActions("LOG_USER_ACTIVITY", "Increase");
                 } else if (response_message === "Log level decreased.") {
-                    // updateActiveServers("-", $("#machine_no option:selected").text(), "-", "Not Active", true);
-                    fetchTable(false);
+                    updateActiveServers("-", $("#machine_no option:selected").val(), timestamp.substring(0, 10) + "." + timestamp.substring(10) + "000", "0");
+                    fetchTable();
                     alert("Log level decreased.");
-                    // logActions("LOG_USER_ACTIVITY", "Decrease");
                 } else if (response_message === "Success!") {
                     console.log("Success!");
                 } else if (response_message === "Couldn't find any files.") {
@@ -229,43 +220,17 @@ window.addEventListener("load", function () {
                     alert("Error changing the log level. Please contact the administrator.");
                 } else {
                     alert("Something bad happened.");
+                }
             }
-        }
-    });
-        XHR.open("POST", "http://itcisopsadmin:5005/" + server_action);
+        });
+        XHR.open("POST", host_url + server_action);
         XHR.setRequestHeader("Access-Control-Allow-Headers", "Accept");
-        XHR.setRequestHeader("Access-Control-Allow-Origin", "http://itcisopsadmin:5005/" + server_action);
-        XHR.responseType='blob';
+        XHR.setRequestHeader("Access-Control-Allow-Origin", host_url + server_action);
+        XHR.responseType = 'blob';
         FD.append("isAdm", $("#isTest").is(":checked"));
         FD.set("component", $('#component').find('option:selected').text());
         start_processing_animation(loading_ring, done);
         XHR.send(FD);
         server_action = "";
     }
-    function logActions(server_action, user_action) {
-        var data = {
-            "Server_action": server_action,
-            "Email": "emailToBeFetched@vodafone.com",
-            "Machine": $("#machine_no option:selected").text(),
-            "Date_activated": date_log,
-            "User_action": user_action
-        };
-        data = JSON.stringify(data);
-        postXHR(data);
-    }
 });
-
-//Reference: https://jsfiddle.net/fwv18zo1/
-// var $machine_no = $('#machine_no'),
-//     $component = $('#component'),
-//     $options = $component.find('option');
-
-// $machine_no.on('change', function () {
-//     $component.html($options.filter('[value="' + this.value + '"]'));
-//     component = $component.find('option:selected').text();
-// }).trigger('change');
-
-
-// $component.on('change', function () {
-//     component = $(this).find('option:selected').text();
-// });
