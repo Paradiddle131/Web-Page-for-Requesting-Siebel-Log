@@ -24,9 +24,9 @@ class Change_log_action:
     DECREASE = "decrease"
 
 
-def return_response_message(response_message):
+def return_response_message(response_message, status):
     return {"response_message": response_message,
-            "status": 500}
+            "status": status}
 
 
 class Siebel:
@@ -93,9 +93,9 @@ class Siebel:
     def find_file(self):
         try:
             if self.isADM:
-                batcmd = '''plink -batch siebel@{} -pw {} "cd {};echo $(grep -l {} *.log);"'''.format(self.args["serv_ip"], self.args["servpw"], self.args["path_unix_log"], self.args["keyword"])
+                batcmd = '''plink -batch siebel@{} -pw {} "cd {};echo $(grep -l '{}' *.log);"'''.format(self.args["serv_ip"], self.args["servpw"], self.args["path_unix_log"], self.args["keyword"])
             else:
-                batcmd = '''plink -hostkey "{}" -batch siebel@{} -pw {} "cd {};echo $(grep -l {} *.log);"'''.format(self.args["winscp_hostkey"], self.args["serv_ip"], self.args["servpw"], self.args["path_unix_log"], self.args["keyword"])
+                batcmd = '''plink -hostkey "{}" -batch siebel@{} -pw {} "cd {};echo $(grep -l '{}' *.log);"'''.format(self.args["winscp_hostkey"], self.args["serv_ip"], self.args["servpw"], self.args["path_unix_log"], self.args["keyword"])
             debug(f"@@ FIND FILE COMMAND @@\n{batcmd}")
             output = subprocess.check_output(batcmd, shell=True, text=True).split()
             debug(f"@@ FIND FILE OUTPUT @@\n{output}")
@@ -117,7 +117,7 @@ class Siebel:
             debug(f"@@ LOG CHANGE LEVEL COMMAND @@\n{batcmd}")
             output = subprocess.check_output(batcmd, shell=True, text=True)
             if not output:
-                return return_response_message("Error changing the log level.")
+                return return_response_message("Error changing the log level.", status=500)
             debug(f"@@ LOG CHANGE LEVEL OUTPUT @@\n{output}")
             with open("static/data/servers.json", "w+") as f:
                 self.servers[int(self.req_data.get("machine_no")) - 1].update({"log_level_status": "5" if action == Change_log_action.INCREASE else "0"})
@@ -148,7 +148,7 @@ class Siebel:
         try:
             files = self.find_file()
             if not files:
-                return return_response_message("Couldn't find any files.")
+                return return_response_message("Couldn't find any files.", status=500)
             files_str = ""
             for _file in files:
                 if self.isADM:
@@ -159,7 +159,7 @@ class Siebel:
                 output = subprocess.check_output(batcmd, shell=True, text=True)
                 debug(f"@@ WINSCP OUTPUT @@\n{output}")
                 files_str += _file + " "
-            batcmd = f""""C:\\Program Files\\7-Zip\\7z.exe" a {self.args["keyword"]}.zip {files_str}-mx5"""
+            batcmd = f""""C:\\Program Files\\7-Zip\\7z.exe" a "{self.args["keyword"]}.zip" {files_str}-mx5"""
             debug(f"@@ 7z COMMAND @@\n{batcmd}")
             chdir("E:\\LogCopyAutomation")
             output = subprocess.check_output(batcmd, shell=True, text=True)

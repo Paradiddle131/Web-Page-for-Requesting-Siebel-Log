@@ -6,6 +6,8 @@ from subprocess import Popen
 from flask import Flask, request, send_file, render_template
 
 from siebel import Siebel, Change_log_action
+import eventlet
+import socketio
 
 app = Flask(__name__)
 
