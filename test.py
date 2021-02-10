@@ -10,6 +10,7 @@ from siebel import Siebel, Change_log_action
 app = Flask(__name__)
 machines_list = [str(x) for x in range(1, 15)]
 
+
 class Request:
     def __init__(self, request_dict):
         self.request_mock = request_dict
@@ -63,11 +64,14 @@ class TestServer(unittest.TestCase):
         siebel, keyword = setup(machine_no)
         self.assertIsNotNone(keyword, "Error finding keyword")
         count = change_log_level(siebel, Change_log_action.INCREASE)
-        self.assertGreaterEqual(count, 180, msg=f"Error {Change_log_action.INCREASE[:-1]}ing log level on machine pro{machine_no}.")
+        self.assertGreaterEqual(count, 180,
+                                msg=f"Error {Change_log_action.INCREASE[:-1]}ing log level on machine pro{machine_no}.")
         count = change_log_level(siebel, Change_log_action.DECREASE)
-        self.assertGreaterEqual(count, 180, msg=f"Error {Change_log_action.DECREASE[:-1]}ing log level on machine pro{machine_no}.")
+        self.assertGreaterEqual(count, 180,
+                                msg=f"Error {Change_log_action.DECREASE[:-1]}ing log level on machine pro{machine_no}.")
         file_name = request_log(siebel)
-        self.assertIsNotNone(file_name, msg=f"Error requesting log file with keyword: {keyword} on machine pro{machine_no}.")
+        self.assertIsNotNone(file_name,
+                             msg=f"Error requesting log file with keyword: {keyword} on machine pro{machine_no}.")
 
 
 if __name__ == '__main__':

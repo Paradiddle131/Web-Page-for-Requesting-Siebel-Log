@@ -24,9 +24,9 @@ class Change_log_action:
     DECREASE = "decrease"
 
 
-def return_response_message(response_message, status):
+def return_response_message(response_message):
     return {"response_message": response_message,
-            "status": status}
+            "status": 500}
 
 
 class Siebel:
@@ -117,7 +117,7 @@ class Siebel:
             debug(f"@@ LOG CHANGE LEVEL COMMAND @@\n{batcmd}")
             output = subprocess.check_output(batcmd, shell=True, text=True)
             if not output:
-                return return_response_message("Error changing the log level.", status=500)
+                return return_response_message("Error changing the log level.")
             debug(f"@@ LOG CHANGE LEVEL OUTPUT @@\n{output}")
             with open("static/data/servers.json", "w+") as f:
                 self.servers[int(self.req_data.get("machine_no")) - 1].update({"log_level_status": "5" if action == Change_log_action.INCREASE else "0"})
@@ -148,7 +148,7 @@ class Siebel:
         try:
             files = self.find_file()
             if not files:
-                return return_response_message("Couldn't find any files.", status=500)
+                return return_response_message("Couldn't find any files.")
             files_str = ""
             for _file in files:
                 if self.isADM:

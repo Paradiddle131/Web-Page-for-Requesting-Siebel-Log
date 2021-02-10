@@ -37,7 +37,7 @@ function fetchTable() {
             "Machine" +
             "</div>" +
             "<div class=\"record_cell\">" +
-            "Email" +
+            "User" +
             "</div>" +
             "<div class=\"record_cell\">" +
             "Last Updated" +
@@ -51,8 +51,8 @@ function fetchTable() {
                 "<div class=\"record_cell\" data-title=\"Machine\">" +
                 "Pro " + (key + 1) +
                 "</div>" +
-                "<div class=\"record_cell\" data-title=\"Email\">" +
-                "-" +
+                "<div class=\"record_cell\" data-title=\"User\">" +
+                value.last_user_name +
                 "</div>" +
                 "<div class=\"record_cell\" data-title=\"Last Updated\">" +
                 new Date(parseInt(value.log_level_last_updated.toString().substring(0, 10) + value.log_level_last_updated.toString().substring(11, 14))).toLocaleString("tr-TR") +

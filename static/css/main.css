@@ -681,3 +681,6 @@
     }
   }
   
+  #lbl-remember-me, #remember-me {
+    display: inline-block !important;
+  }

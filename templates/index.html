@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <!-- Required meta tags-->
     <meta charset="UTF-8">
@@ -8,126 +7,126 @@
     <meta name="description" content="Colorlib Templates">
     <meta name="author" content="Colorlib">
     <meta name="keywords" content="Colorlib Templates">
-
     <!-- Title Page-->
     <title>Siebel Log Request Page</title>
-
     <!-- Icons font CSS-->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.1/css/all.css">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.1/css/v4-shims.css">
     <link href="../static/vendor/mdi-font/css/material-design-iconic-font.min.css" rel="stylesheet" media="all">
     <!-- <link href="../static/vendor/font-awesome-4.7/css/font-awesome.min.css" rel="stylesheet" media="all"> -->
     <!-- Font special for pages-->
-    <link href="https://fonts.googleapis.com/css?family=Roboto:100,100i,300,300i,400,400i,500,500i,700,700i,900,900i" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,100i,300,300i,400,400i,500,500i,700,700i,900,900i"
+          rel="stylesheet">
     <!-- Vendor CSS-->
     <link href="../static/vendor/select2/select2.min.css" rel="stylesheet" media="all">
     <link href="../static/vendor/datepicker/daterangepicker.css" rel="stylesheet" media="all">
-
     <!-- Main CSS-->
     <link href="../static/css/main.css" rel="stylesheet" media="all">
-	<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
 </head>
-
 <body>
-    <div class="page-wrapper bg-blue p-t-100 p-b-100 font-robo">
-        <div class="wrapper wrapper--w680">
-            <div class="card card-1">
-                <div class="card-heading"></div>
-                <div class="card-body">
-                    <h2 class="title">Request Info</h2>
-                    <form method="POST" id="myForm">
-                        <div class="input-group">
-                            <input id="keyword" class="input--style-1" type="text" placeholder="Keyword to search for" name="keyword">
-                        </div>
-                        <div class="row row-space">
-                            <div class="col-2">
-                                <div class="input-group">
-                                    <div class="rs-select2 js-select-simple select">
-                                        <select id="machine_no" name="machine_no">
-                                            <option value="not_selected" disabled="disabled" selected="selected">Select Machine</option>
-                                            <option value="1">sblapp01</option>
-                                            <option value="2">sblapp02</option>
-                                            <option value="3">sblapp03</option>
-                                            <option value="4">sblapp04</option>
-                                            <option value="5">sblapp05</option>
-                                            <option value="6">sblapp06</option>
-                                            <option value="7">sblapp07</option>
-                                            <option value="8">sblapp08</option>
-                                            <option value="9">sblapp09</option>
-                                            <option value="10">sblapp10</option>
-                                            <option value="11">sblapp11</option>
-                                            <option value="12">sblapp12</option>
-                                            <option value="13">sblapp13</option>
-                                            <option value="14">sblapp14</option>
-                                        </select>
-                                        <div class="select-dropdown"></div>
-                                    </div>
+<div class="page-wrapper bg-blue p-t-100 p-b-100 font-robo">
+    <div class="wrapper wrapper--w680">
+        <div class="card card-1">
+            <div class="card-body">
+                <h2 class="title">Request Info</h2>
+                <form method="POST" id="myForm">
+                    <div class="input-group">
+                        <input id="keyword" class="input--style-1" type="text" placeholder="Keyword to search for"
+                               name="keyword">
+                    </div>
+                    <div class="row row-space">
+                        <div class="col-2">
+                            <div class="input-group">
+                                <div class="rs-select2 js-select-simple select">
+                                    <select id="machine_no" name="machine_no">
+                                        <option value="not_selected" disabled="disabled" selected="selected">Select
+                                            Machine
+                                        </option>
+                                        <option value="1">sblapp01</option>
+                                        <option value="2">sblapp02</option>
+                                        <option value="3">sblapp03</option>
+                                        <option value="4">sblapp04</option>
+                                        <option value="5">sblapp05</option>
+                                        <option value="6">sblapp06</option>
+                                        <option value="7">sblapp07</option>
+                                        <option value="8">sblapp08</option>
+                                        <option value="9">sblapp09</option>
+                                        <option value="10">sblapp10</option>
+                                        <option value="11">sblapp11</option>
+                                        <option value="12">sblapp12</option>
+                                        <option value="13">sblapp13</option>
+                                        <option value="14">sblapp14</option>
+                                    </select>
+                                    <div class="select-dropdown"></div>
                                 </div>
                             </div>
-                            <div class="col-2">
-                                <div class="input-group">
-                                    <div class="rs-select2 js-select-simple select">
-                                        <select name="component" id="component">
-                                            <option value="not_selected" disabled="disabled" selected="selected">Select Component</option>
-                                            <option value="crm">callcenter_enu</option>
-                                            <option value="prm">prm_enu</option>
-                                        </select>
-                                        <div class="select-dropdown"></div>
-                                    </div>
+                        </div>
+                        <div class="col-2">
+                            <div class="input-group">
+                                <div class="rs-select2 js-select-simple select">
+                                    <select name="component" id="component">
+                                        <option value="not_selected" disabled="disabled" selected="selected">Select
+                                            Component
+                                        </option>
+                                        <option value="crm">callcenter_enu</option>
+                                        <option value="prm">prm_enu</option>
+                                    </select>
+                                    <div class="select-dropdown"></div>
                                 </div>
                             </div>
-                            <div class="col-2">
-                                <label for="isTest">Test? (ADM)</label>
-                                <input type="checkbox" id="isTest" name="isTest" value="True">
-                            </div>
                         </div>
-                            <div class="p-t-20">
-                                <button class="btn btn--radius btn--green" type="submit" id="btn1"><i class="fas fa-unlock"></i> Open Logs</button>
-                                <span class="status">
+                        <div class="col-2">
+                            <label for="isTest">Test? (ADM)</label>
+                            <input type="checkbox" id="isTest" name="isTest" value="True">
+                        </div>
+                    </div>
+                    <div class="p-t-20">
+                        <button class="btn btn--radius btn--green" type="submit" id="btn1"><i class="fas fa-unlock"></i>
+                            Open Logs
+                        </button>
+                        <span class="status">
                                     <div class="loading_ring" id="loading_ring_1"><div></div><div></div><div></div><div></div></div>
                                 </span>
-                            </div>
-                            <div class="p-t-20">
-                                <button class="btn btn--radius btn--green" type="submit" id="btn2"><i class="fas fa-lock"></i> Close Logs</button>
-                                <span class="status">
+                    </div>
+                    <div class="p-t-20">
+                        <button class="btn btn--radius btn--green" type="submit" id="btn2"><i class="fas fa-lock"></i>
+                            Close Logs
+                        </button>
+                        <span class="status">
                                     <div class="loading_ring" id="loading_ring_2"><div></div><div></div><div></div><div></div></div>
                                 </span>
-                            </div>
-                            <div class="p-t-20">
-                                <button class="btn btn--radius btn--green" type="submit" id="btn3"><i class="fas fa-download"></i> Request Log</button>
-                                <span class="status">
+                    </div>
+                    <div class="p-t-20">
+                        <button class="btn btn--radius btn--green" type="submit" id="btn3"><i
+                                class="fas fa-download"></i> Request Log
+                        </button>
+                        <span class="status">
                                     <div class="loading_ring" id="loading_ring_3"><div></div><div></div><div></div><div></div></div>
                                 </span>
-                            </div>
-                    </form>
-                </div>
-            </div><br>
-
-            <div class="card card-1">
-                <div class="record_wrapper">
-                    <button class="btn btn--radius btn--green btn--refresh" type="submit" id="btn_refresh"><i class="fas fa-sync-alt"> Refresh</i></button>
-                    <div class="record_table" id="record_table">
-                        
                     </div>
-                    </div>
+                </form>
+            </div>
+        </div>
+        <br>
+        <div class="card card-1">
+            <div class="record_wrapper">
+                <button class="btn btn--radius btn--green btn--refresh" type="submit" id="btn_refresh"><i
+                        class="fas fa-sync-alt"> Refresh</i></button>
+                <div class="record_table" id="record_table">
                 </div>
             </div>
-
         </div>
     </div>
-
-    <!-- Jquery JS-->
-    <script src="../static/vendor/jquery/jquery.min.js"></script>
-    <!-- Vendor JS-->
-    <script src="../static/vendor/select2/select2.min.js"></script>
-    <script src="../static/vendor/datepicker/moment.min.js"></script>
-    <script src="../static/vendor/datepicker/daterangepicker.js"></script>
-
-    <!-- Main JS-->
-    <script src="../static/js/global.js"></script>
-
+</div>
+<!-- Jquery JS-->
+<script src="../static/vendor/jquery/jquery.min.js"></script>
+<!-- Vendor JS-->
+<script src="../static/vendor/select2/select2.min.js"></script>
+<script src="../static/vendor/datepicker/moment.min.js"></script>
+<script src="../static/vendor/datepicker/daterangepicker.js"></script>
+<!-- Main JS-->
+<script src="../static/js/global.js"></script>
 </body><!-- This templates was made by Colorlib (https://colorlib.com) -->
-
 </html>
 <!-- end document-->
