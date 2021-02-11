@@ -1,4 +1,4 @@
-from json import dump, dumps, load
+from json import dump, dumps, load, loads
 from logging import FileHandler, basicConfig, error, DEBUG, debug
 from os import getenv, getcwd
 from subprocess import Popen
@@ -45,6 +45,7 @@ class Anonymous(AnonymousUserMixin):
 USERS = {}
 USER_NAMES = [{user.name: user} for user in USERS]
 user_id_count = 0
+TIMEOUT_LOGIN = 15 * 60
 # USER_NAMES = dict((u.name, u) for u in USERS.itervalues())
 SECRET_KEY = "secretkey"
 app.config.from_object(__name__)
@@ -74,15 +75,9 @@ def getXml(username, password):
     </soapenv:Envelope>'''
 
 
-def isLdapAuthenticated(xml_str):
+def isLdapOk(xml_str):
     data_json = ast.literal_eval(dumps(xmltodict.parse(xml_str)))
     return "LDAP Account : OK" == data_json["soapenv:Envelope"]["soapenv:Body"]["checkAuthenticationResponse"]["checkAuthenticationReturn"]["ldapResults"]["ldapResults"]["description"]
-
-
-@app.before_request
-def before_request():
-    session.permanent = True
-    app.permanent_session_lifetime = timedelta(minutes=15)
 
 
 @login_manager.user_loader
@@ -104,10 +99,14 @@ def home():
 # @login_required
 def request_log_page():
     if load_user(request.remote_addr) and load_user(request.remote_addr).ldap_authenticated:
-        print("authenticated. (on request_log_page")
-        return render_template("index.html")
-    else:
-        return redirect(url_for("login"))
+        if time.time() - load_user(request.remote_addr).last_activity < TIMEOUT_LOGIN:
+            load_user(request.remote_addr).last_activity = time.time()
+            return render_template("index.html")
+        else:
+            load_user(request.remote_addr).ldap_authenticated = False
+            flash("Your session has timed out. Please login again.")
+            return redirect(url_for("login"))
+    return redirect(url_for("login"))
 
 
 @login_manager.unauthorized_handler
@@ -121,7 +120,7 @@ def login():
         username = request.form["username"]
         data = getXml(username, request.form["password"])
         r = requests.post(url=getenv("LDAP_URL"), data=data, headers={'Content-Type': 'application/xml', 'SOAPAction': ''})
-        if isLdapAuthenticated(r.text):
+        if isLdapOk(r.text):
             user_id_count += 1
             current_user = User(name=username,
                                 id=user_id_count,
@@ -132,12 +131,10 @@ def login():
             USERS.update({username:  current_user})
             USERS[username].ldap_authenticated = True
             login_user(USERS[username], remember=remember)
-            # return render_template("index.html")
             return redirect(url_for("request_log_page"))
         else:
             flash("Invalid credentials.")
-            return render_template("login.html", status_message="Invalid credentials.")
-            #TODO: add invalid cred. message along with render_template
+            return render_template("login.html")
 
 
 @app.route("/reauth", methods=["GET", "POST"])
@@ -153,7 +150,6 @@ def reauth():
 @app.route("/logout")
 @login_required
 def logout():
-    
     logout_user()
     flash("Logged out.")
     return redirect(url_for("index"))
@@ -164,6 +160,7 @@ def open_log():
     try:
         req_data = request.form if len(request.form) != 0 else request.json
         debug(req_data)
+        debug("User -> " + load_user(request.remote_addr).name)
         siebel = Siebel(req_data)
         response = siebel.change_log_level(Change_log_action.INCREASE)
         debug(response)
@@ -185,6 +182,7 @@ def close_log():
     try:
         req_data = request.form if len(request.form) != 0 else request.json
         debug(req_data)
+        debug("User -> " + load_user(request.remote_addr).name)
         siebel = Siebel(req_data)
         response = siebel.change_log_level(Change_log_action.DECREASE)
         debug(response)
@@ -205,6 +203,7 @@ def close_log():
 def request_log():
     req_data = request.form if len(request.form) != 0 else request.json
     debug(req_data)
+    debug("User -> " + load_user(request.remote_addr).name)
     siebel = Siebel(req_data)
     file_name = siebel.request_log()
     debug(file_name)
