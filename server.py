@@ -43,10 +43,8 @@ class Anonymous(AnonymousUserMixin):
 
 
 USERS = {}
-USER_NAMES = [{user.name: user} for user in USERS]
 user_id_count = 0
 TIMEOUT_LOGIN = 15 * 60
-# USER_NAMES = dict((u.name, u) for u in USERS.itervalues())
 SECRET_KEY = "secretkey"
 app.config.from_object(__name__)
 
@@ -246,6 +244,22 @@ def get_servers():
     debug(f"servers.json has been retrieved.")
     return app.response_class(
         response=dumps(data),
+        status=200,
+        mimetype='application/json'
+    )
+
+
+@app.route("/get_request_details", methods=["POST"])
+def get_request_details():
+    req_data = request.form if len(request.form) != 0 else request.json
+    debug(req_data)
+    debug("User -> " + load_user(request.remote_addr).name)
+    siebel = Siebel(req_data)
+    size, count = siebel.get_file_details()
+    status_message = f"""Downloading {count} files with size: {" ".join(size)}"""
+    debug(size)
+    return app.response_class(
+        response=dumps({"status_message": status_message}),
         status=200,
         mimetype='application/json'
     )

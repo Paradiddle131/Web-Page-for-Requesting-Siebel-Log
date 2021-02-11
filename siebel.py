@@ -103,6 +103,23 @@ class Siebel:
         except:
             error(f"Error finding file on machine #{self.req_data.get('machine_no')} with keyword: \"{self.args['keyword']}\".", exc_info=True)
 
+    def get_file_details(self):
+        try:
+            if self.isADM:
+                batcmd_size = '''plink -batch siebel@{} -pw {} "cd {};du -sh --total $(grep -l {} *.log) | tail -n 1;"'''.format(self.args["serv_ip"], self.args["servpw"], self.args["path_unix_log"], self.args["keyword"])
+                batcmd_count = '''plink -batch siebel@{} -pw {} "cd {};du -sh --total $(grep -l {} *.log) | wc -l;"'''.format(self.args["serv_ip"], self.args["servpw"], self.args["path_unix_log"], self.args["keyword"])
+            else:
+                batcmd_size = '''plink -hostkey "{}" -batch siebel@{} -pw {} "cd {};du -sh --total $(grep -l {} *.log) | tail -n 1;"'''.format(self.args["winscp_hostkey"], self.args["serv_ip"], self.args["servpw"], self.args["path_unix_log"], self.args["keyword"])
+                batcmd_count = '''plink -hostkey "{}" -batch siebel@{} -pw {} "cd {};du -sh --total $(grep -l {} *.log) | wc -l;"'''.format(self.args["winscp_hostkey"], self.args["serv_ip"], self.args["servpw"], self.args["path_unix_log"], self.args["keyword"])
+            debug(f"@@ GET FILE SIZE COMMAND @@\n{batcmd_size}\n{batcmd_count}")
+            output_size = subprocess.check_output(batcmd_size, shell=True, text=True).split()
+            output_count = subprocess.check_output(batcmd_count, shell=True, text=True).split()
+            debug(f"@@ GET FILE SIZE OUTPUT @@\n{output_size}")
+            debug(f"@@ GET FILE SIZE OUTPUT @@\n{output_count}")
+            return output_size, int(output_count[0]) - 1
+        except:
+            error(f"Error finding file on machine #{self.req_data.get('machine_no')} with keyword: \"{self.args['keyword']}\".", exc_info=True)
+
 
     def change_log_level(self, action):
         """action: type:Change_log_action, "INCREASE" or "DECREASE" """

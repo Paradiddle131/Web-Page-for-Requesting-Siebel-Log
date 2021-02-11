@@ -65,6 +65,23 @@ function fetchTable() {
     }
 }
 
+var status_message = $("#status_message")
+
+async function get_request_details(FD) {
+    const xhr = new XMLHttpRequest(),
+        method = "POST",
+        url = host_url + "get_request_details";
+    xhr.open(method, url, true);
+    xhr.setRequestHeader("Access-Control-Allow-Headers", "Accept");
+    xhr.setRequestHeader("Access-Control-Allow-Origin", url);
+    xhr.send(FD);
+    xhr.onload = function () {
+        data = JSON.parse(xhr.responseText);
+        status_message.empty();
+        status_message.append(`<p style="display: inline-block; color: #000; font-style: italic; font-weight: bold;">${data.status_message}</p>`)
+    }
+}
+
 var $status = $('.status');
 var processing = false;
 
@@ -188,7 +205,7 @@ window.addEventListener("load", function () {
             console.log(this.response.type);
             if (this.response.type === "application/x-zip-compressed") {
                 var keyword = document.getElementsByClassName("input--style-1")[0].value;
-                const blob = new Blob([this.response], {type: 'application/x-zip-compressed'});
+                const blob = new Blob([this.response], { type: 'application/x-zip-compressed' });
                 var myFile = blobToFile(blob, keyword + ".zip");
                 let a = document.createElement("a");
                 a.style = "display: none";
@@ -199,6 +216,8 @@ window.addEventListener("load", function () {
                 a.click();
                 window.URL.revokeObjectURL(url);
                 a.remove();
+                status_message.empty();
+                status_message.append(`<p style="display: inline-block; color: #000; font-style: italic; font-weight: bold;">Download process completed.</p>`)
             } else if (this.response.type === "application/json") {
                 var response = blobToString(this.response);
                 var response_message = JSON.parse(response);
@@ -223,12 +242,13 @@ window.addEventListener("load", function () {
                 }
             }
         });
+        FD.append("isAdm", $("#isTest").is(":checked"));
+        FD.set("component", $('#component').find('option:selected').text());
+        if (server_action === "request_log") { get_request_details(FD); }
         XHR.open("POST", host_url + server_action);
         XHR.setRequestHeader("Access-Control-Allow-Headers", "Accept");
         XHR.setRequestHeader("Access-Control-Allow-Origin", host_url + server_action);
         XHR.responseType = 'blob';
-        FD.append("isAdm", $("#isTest").is(":checked"));
-        FD.set("component", $('#component').find('option:selected').text());
         start_processing_animation(loading_ring, done);
         XHR.send(FD);
         server_action = "";
