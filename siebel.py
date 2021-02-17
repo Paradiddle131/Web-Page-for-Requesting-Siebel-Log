@@ -77,14 +77,20 @@ class Siebel:
         try:
             if self.isADM:
                 batcmd = '''plink -batch siebel@{} -pw {} "cd {};echo $(ls -t | egrep '{}');"'''.format(self.args["serv_ip"], self.args["servpw"], self.args["path_unix_log"], "_[0-9]{9}\.log")
+                debug(f"@@ FIND KEYWORD COMMAND @@\n{batcmd}")
+                output = subprocess.check_output(batcmd, shell=True, text=True).split()[0].split('_')[-1][:-4]
+                debug(f"@@ FIND KEYWORD OUTPUT @@\n{output}")
+                return output
             else:
-                if int(self.args["machine_no"]) < 7:
+                try:
                     regex_pattern = "_[0-9]{9}\.log"
-                else:
+                    batcmd = '''plink -hostkey "{}" -batch siebel@{} -pw {} "cd {};echo $(ls -t | egrep '{}');"'''.format(self.args["winscp_hostkey"], self.args["serv_ip"], self.args["servpw"], self.args["path_unix_log"], regex_pattern)
+                    output = subprocess.check_output(batcmd, shell=True, text=True).split()[0].split('_')[-1][:-4]
+                except:
                     regex_pattern = "_[0-9]{7}\.log"
-                batcmd = '''plink -hostkey "{}" -batch siebel@{} -pw {} "cd {};echo $(ls -t | egrep '{}');"'''.format(self.args["winscp_hostkey"], self.args["serv_ip"], self.args["servpw"], self.args["path_unix_log"], regex_pattern)
+                    batcmd = '''plink -hostkey "{}" -batch siebel@{} -pw {} "cd {};echo $(ls -t | egrep '{}');"'''.format(self.args["winscp_hostkey"], self.args["serv_ip"], self.args["servpw"], self.args["path_unix_log"], regex_pattern)
+                    output = subprocess.check_output(batcmd, shell=True, text=True).split()[0].split('_')[-1][:-4]
             debug(f"@@ FIND KEYWORD COMMAND @@\n{batcmd}")
-            output = subprocess.check_output(batcmd, shell=True, text=True).split()[0].split('_')[-1][:-4]
             debug(f"@@ FIND KEYWORD OUTPUT @@\n{output}")
             return output
         except:

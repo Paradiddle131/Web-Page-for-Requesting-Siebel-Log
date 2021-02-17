@@ -256,7 +256,7 @@ def get_request_details():
     debug("User -> " + load_user(request.remote_addr).name)
     siebel = Siebel(req_data)
     size, count = siebel.get_file_details()
-    status_message = f"""Downloading {count} files with size: {" ".join(size)}"""
+    status_message = f"""Downloading {count} file(s) with size: {" ".join(size)}"""
     debug(size)
     return app.response_class(
         response=dumps({"status_message": status_message}),
