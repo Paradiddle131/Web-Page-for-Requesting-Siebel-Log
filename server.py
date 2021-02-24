@@ -75,8 +75,12 @@ def getXml(username, password):
 
 def isLdapOk(xml_str):
     data_json = ast.literal_eval(dumps(xmltodict.parse(xml_str)))
-    return "LDAP Account : OK" == data_json["soapenv:Envelope"]["soapenv:Body"]["checkAuthenticationResponse"]["checkAuthenticationReturn"]["ldapResults"]["ldapResults"]["description"]
-
+    try:
+        return "LDAP Account : OK" == data_json["soapenv:Envelope"]["soapenv:Body"]["checkAuthenticationResponse"]["checkAuthenticationReturn"]["ldapResults"]["ldapResults"]["description"]
+    except:
+        debug(data_json)
+        return False
+        
 
 @login_manager.user_loader
 def load_user(ip):
