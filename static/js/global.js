@@ -118,6 +118,7 @@ function updateActiveServers(email, machine_no, log_level_last_updated, log_leve
 var btn1 = document.getElementById("btn1");
 var btn2 = document.getElementById("btn2");
 var btn3 = document.getElementById("btn3");
+var btnLogout = document.getElementById("btnLogout");
 var btn_refresh = document.getElementById("btn_refresh");
 
 
@@ -185,6 +186,10 @@ window.addEventListener("load", function () {
         server_action = "request_log";
         loading_ring = $('#loading_ring_3')
         done = $('#done_3')
+    }
+
+    btnLogout.onclick = () => {
+        window.location.href = "logout";
     }
 
     btn_refresh.onclick = function (e) {

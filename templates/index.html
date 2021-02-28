@@ -20,7 +20,17 @@
     <div class="wrapper wrapper--w680">
         <div class="card card-1">
             <div class="card-body">
-                <h2 class="title">Request Info</h2>
+                <div class="row row-space">
+                    <div class="col">
+                        <h2 class="title">Request Info</h2>
+                    </div>
+                    <div class="col">
+                        <p>Signed in as {{ username }}</p>
+                        <button class="btn btn--logout btn--radius btn-danger" type="submit" id="btnLogout"><i class="fa-sign-out"></i>
+                            Logout
+                        </button>
+                    </div>
+                </div>
                 <form method="POST" id="myForm">
                     <div class="input-group">
                         <input id="keyword" class="input--style-1" type="text" placeholder="Keyword to search for"

@@ -235,6 +235,12 @@
     background-color: #cccccc;
     color: #666666;
   }
+
+  .btn--logout {
+    background: #ff0000;
+    padding: 0 3%;
+    margin-top: 3%;
+  }
   
   /* ==========================================================================
      #DATE PICKER

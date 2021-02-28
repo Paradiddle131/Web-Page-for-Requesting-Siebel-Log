@@ -103,7 +103,7 @@ def request_log_page():
     if load_user(request.remote_addr) and load_user(request.remote_addr).ldap_authenticated:
         if time.time() - load_user(request.remote_addr).last_activity < TIMEOUT_LOGIN:
             load_user(request.remote_addr).last_activity = time.time()
-            return render_template("index.html")
+            return render_template("index.html", username=load_user(request.remote_addr).name)
         else:
             load_user(request.remote_addr).ldap_authenticated = False
             flash("Your session has timed out. Please login again.")
@@ -155,7 +155,7 @@ def reauth():
     return render_template("reauth.html")
 
 
-@app.route("/logout")
+@app.route("/logout", methods=["GET", "POST"])
 def logout():
     logout_user()
     load_user(request.remote_addr).ldap_authenticated = False
