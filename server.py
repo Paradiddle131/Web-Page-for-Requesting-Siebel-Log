@@ -1,5 +1,5 @@
 from json import dump, dumps, load, loads
-from logging import FileHandler, basicConfig, error, DEBUG, debug
+from logging import FileHandler, basicConfig, error, DEBUG, debug, info
 from os import getenv, getcwd
 from subprocess import Popen
 import requests 
@@ -78,9 +78,9 @@ def isLdapOk(xml_str):
     try:
         return "LDAP Account : OK" == data_json["soapenv:Envelope"]["soapenv:Body"]["checkAuthenticationResponse"]["checkAuthenticationReturn"]["ldapResults"]["ldapResults"]["description"]
     except:
+        error("Error during parsing LDAP XML.", exc_info=true)
         debug(data_json)
         return False
-        
 
 @login_manager.user_loader
 def load_user(ip):
@@ -123,6 +123,7 @@ def login():
         data = getXml(username, request.form["password"])
         r = requests.post(url=getenv("LDAP_URL"), data=data, headers={'Content-Type': 'application/xml', 'SOAPAction': ''})
         if isLdapOk(r.text):
+            info(f"LDAP is OK for the user: {username}")
             user_id_count += 1
             current_user = User(name=username,
                                 id=user_id_count,
@@ -132,9 +133,14 @@ def login():
                                 last_activity=time.time())
             USERS.update({username:  current_user})
             USERS[username].ldap_authenticated = True
-            login_user(USERS[username], remember=remember)
+            try:
+                login_user(USERS[username], remember=remember)
+                debug("Successfully logged in via Flask.")
+            except:
+                error("Error logging in user via Flask.", exc_info=True)
             return redirect(url_for("request_log_page"))
         else:
+            error(f"LDAP is NOT OK for the user: {username}")
             flash("Invalid credentials.")
             return render_template("login.html")
 
@@ -150,11 +156,11 @@ def reauth():
 
 
 @app.route("/logout")
-@login_required
 def logout():
     logout_user()
+    load_user(request.remote_addr).ldap_authenticated = False
     flash("Logged out.")
-    return redirect(url_for("index"))
+    return redirect(url_for("login"))
 
 
 @app.route("/open_log", methods=["POST"])
