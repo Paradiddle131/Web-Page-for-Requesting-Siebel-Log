@@ -134,9 +134,9 @@ class Siebel:
                 debug(f"Wrong argument passed: {action}")
                 return None
             if self.isADM:
-                batcmd = f'''plink -batch siebel@{self.args["serv_ip"]} -pw {self.args["servpw"]} "cd {getenv("path_scripts")};./log_{action}.sh {self.args["server_name"]} {self.args["component"]};"'''
+                batcmd = f'''plink -batch siebel@{self.args["serv_ip"]} -pw {self.args["servpw"]} "cd {getenv("path_scripts")};source log_{action}.sh {self.args["server_name"]} {self.args["component"]};"'''
             else:
-                batcmd = f'''plink -hostkey "{self.args["winscp_hostkey"]}" -batch siebel@{self.args["serv_ip"]} -pw {self.args["servpw"]} "cd {getenv("path_scripts")};./log_{action}.sh {self.args["server_name"]} {self.args["component"]};"'''
+                batcmd = f'''plink -hostkey "{self.args["winscp_hostkey"]}" -batch siebel@{self.args["serv_ip"]} -pw {self.args["servpw"]} "cd {getenv("path_scripts")};source log_{action}.sh {self.args["server_name"]} {self.args["component"]};"'''
             debug(f"@@ LOG CHANGE LEVEL COMMAND @@\n{batcmd}")
             output = subprocess.check_output(batcmd, shell=True, text=True)
             if not output:
@@ -155,9 +155,9 @@ class Siebel:
     def list_log_level(self):
         try:
             if self.isADM:
-                batcmd = f'''plink -batch siebel@{self.args["serv_ip"]} -pw {self.args["servpw"]} "cd {getenv("path_scripts")};./log_list.sh {self.args["server_name"]} {self.args["component"]};"'''
+                batcmd = f'''plink -batch siebel@{self.args["serv_ip"]} -pw {self.args["servpw"]} "cd {getenv("path_scripts")};source log_list.sh {self.args["server_name"]} {self.args["component"]};"'''
             else:
-                batcmd = f'''plink -hostkey "{self.args["winscp_hostkey"]}" -batch siebel@{self.args["serv_ip"]} -pw {self.args["servpw"]} "cd {getenv("path_scripts")};./log_list.sh {self.args["server_name"]} {self.args["component"]};"'''
+                batcmd = f'''plink -hostkey "{self.args["winscp_hostkey"]}" -batch siebel@{self.args["serv_ip"]} -pw {self.args["servpw"]} "cd {getenv("path_scripts")};source log_list.sh {self.args["server_name"]} {self.args["component"]};"'''
             debug(f"@@ LOG LIST LEVEL COMMAND @@\n{batcmd}")
             output = subprocess.check_output(batcmd, shell=True, text=True).split()
             debug(f"@@ LOG LIST LEVEL OUTPUT @@\n{output}")
